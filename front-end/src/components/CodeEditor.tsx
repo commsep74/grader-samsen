@@ -1,0 +1,50 @@
+import Editor from '@monaco-editor/react'
+import { jetbrainsMono } from '@/lib/utils'
+import { useAppStore } from '@/store/useAppStore'
+
+interface CodeEditorProps {
+  problemId: string
+  language: string
+  value: string
+  onChange: (value: string) => void
+  height?: string
+}
+
+export default function CodeEditor({
+  problemId,
+  language,
+  value,
+  onChange,
+  height = '420px',
+}: CodeEditorProps) {
+  const isDark = useAppStore((s) => s.isDark)
+  const setDraftCode = useAppStore((s) => s.setDraftCode)
+
+  const monacoLang =
+    language === 'cpp' ? 'cpp' : language === 'python' ? 'python' : language === 'java' ? 'java' : 'javascript'
+
+  return (
+    <div className="overflow-hidden rounded-md border border-gray-200 dark:border-gray-800">
+      <Editor
+        height={height}
+        language={monacoLang}
+        theme={isDark ? 'vs-dark' : 'light'}
+        value={value}
+        onChange={(v) => {
+          const code = v ?? ''
+          onChange(code)
+          setDraftCode(problemId, code)
+        }}
+        options={{
+          fontFamily: jetbrainsMono,
+          fontSize: 14,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          padding: { top: 12 },
+          lineNumbers: 'on',
+          automaticLayout: true,
+        }}
+      />
+    </div>
+  )
+}
