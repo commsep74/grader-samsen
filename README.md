@@ -1,6 +1,6 @@
 # Grader Samsen
 
-**Live site:** [https://salmonA001.github.io/grader-samsen/](https://salmonA001.github.io/grader-samsen/)
+**Live site:** [https://commsep74.github.io/grader-samsen/](https://commsep74.github.io/grader-samsen/)
 
 Online judge for Samsen School — classrooms, contests, and coding practice. UI inspired by Linear, Vercel, and Notion.
 
