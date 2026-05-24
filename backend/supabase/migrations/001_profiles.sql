@@ -3,6 +3,7 @@ create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   username text unique not null,
   name text not null default '',
+  password text not null default '',
   role text not null default 'student' check (role in ('student', 'teacher', 'admin')),
   xp integer default 0,
   streak integer default 0,

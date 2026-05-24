@@ -22,6 +22,7 @@ export interface User {
   xp?: number
   streak?: number
   tier?: string
+  password?: string
 }
 
 export interface Problem {

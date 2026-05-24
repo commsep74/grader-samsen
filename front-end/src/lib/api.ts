@@ -108,3 +108,24 @@ export async function fetchCurrentUser(): Promise<User | null> {
     return null
   }
 }
+
+export async function fetchUsers(): Promise<User[]> {
+  const data = await request<{ users: User[] }>('/api/auth/users')
+  return data.users
+}
+
+export async function deleteAccount(): Promise<void> {
+  try {
+    await request<{ success: boolean }>('/api/auth/delete-account', {
+      method: 'DELETE',
+    })
+  } finally {
+    setStoredSession(null)
+  }
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  await request<{ success: boolean }>(`/api/auth/users/${id}`, {
+    method: 'DELETE',
+  })
+}

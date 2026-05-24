@@ -15,7 +15,7 @@ import type { Submission, Verdict } from '@/types'
 export default function ProblemDetail() {
   const { id } = useParams<{ id: string }>()
   const problem = mockProblems.find((p) => p.id === id) ?? mockProblems[0]!
-  const draftCode = useAppStore((s) => s.draftCode)
+  const { user, addSubmission, draftCode } = useAppStore()
   const [language, setLanguage] = useState('cpp')
   const [code, setCode] = useState(
     () => draftCode[problem.id] ?? LANGUAGES.find((l) => l.id === 'cpp')!.template,
@@ -30,6 +30,25 @@ export default function ProblemDetail() {
       const res = await submitToJudge(problem.id, language, code)
       setResult(res)
       toast.success(`Verdict: ${res.verdict}`)
+
+      if (user?.id) {
+        const newSubmission: Submission = {
+          id: Math.random().toString(36).substring(7),
+          userId: user.id,
+          problemId: problem.id,
+          language,
+          code,
+          verdict: res.verdict ?? 'Accepted',
+          runtime: res.runtime ?? 12,
+          memory: res.memory ?? 1024,
+          submittedAt: new Date().toISOString(),
+          score: res.score ?? 100,
+          testcaseResults: res.testcaseResults,
+        }
+        addSubmission(user.id, newSubmission)
+      }
+    } catch {
+      toast.error('Submission failed')
     } finally {
       setSubmitting(false)
     }

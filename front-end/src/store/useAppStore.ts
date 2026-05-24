@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { User } from '@/types'
+import type { User, Submission } from '@/types'
 import * as authApi from '@/lib/api'
 
 interface AppState {
@@ -8,6 +8,8 @@ interface AppState {
   isDark: boolean
   draftCode: Record<string, string>
   authReady: boolean
+  studentJoinedClassrooms: Record<string, string[]>
+  studentSubmissions: Record<string, Submission[]>
   setUser: (user: User | null) => void
   toggleDark: () => void
   setDraftCode: (problemId: string, code: string) => void
@@ -15,6 +17,10 @@ interface AppState {
   registerWithCredentials: (username: string, password: string) => Promise<User>
   restoreSession: () => Promise<void>
   logout: () => Promise<void>
+  deleteAccount: () => Promise<void>
+  joinClassroom: (userId: string, classId: string) => void
+  addSubmission: (userId: string, submission: Submission) => void
+  resetStudentData: (userId: string) => void
 }
 
 export const useAppStore = create<AppState>()(
@@ -24,6 +30,8 @@ export const useAppStore = create<AppState>()(
       isDark: false,
       draftCode: {},
       authReady: false,
+      studentJoinedClassrooms: {},
+      studentSubmissions: {},
       setUser: (user) => set({ user }),
       toggleDark: () =>
         set((s) => {
@@ -53,6 +61,42 @@ export const useAppStore = create<AppState>()(
         await authApi.logout()
         set({ user: null })
       },
+      deleteAccount: async () => {
+        await authApi.deleteAccount()
+        set({ user: null })
+      },
+      joinClassroom: (userId, classId) =>
+        set((s) => {
+          const current = s.studentJoinedClassrooms[userId] ?? []
+          if (current.includes(classId)) return {}
+          return {
+            studentJoinedClassrooms: {
+              ...s.studentJoinedClassrooms,
+              [userId]: [...current, classId],
+            },
+          }
+        }),
+      addSubmission: (userId, submission) =>
+        set((s) => {
+          const current = s.studentSubmissions[userId] ?? []
+          return {
+            studentSubmissions: {
+              ...s.studentSubmissions,
+              [userId]: [submission, ...current],
+            },
+          }
+        }),
+      resetStudentData: (userId) =>
+        set((s) => ({
+          studentJoinedClassrooms: {
+            ...s.studentJoinedClassrooms,
+            [userId]: [],
+          },
+          studentSubmissions: {
+            ...s.studentSubmissions,
+            [userId]: [],
+          },
+        })),
     }),
     {
       name: 'grader-samsen',
@@ -60,6 +104,8 @@ export const useAppStore = create<AppState>()(
         user: s.user,
         isDark: s.isDark,
         draftCode: s.draftCode,
+        studentJoinedClassrooms: s.studentJoinedClassrooms,
+        studentSubmissions: s.studentSubmissions,
       }),
       onRehydrateStorage: () => (state) => {
         if (state?.isDark) {
