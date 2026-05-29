@@ -28,43 +28,52 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-950">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <Link to="/" className="text-sm">
+    <div className="gradient-auth flex min-h-dvh items-center justify-center px-4 py-12">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-4">
+          <Link to="/" className="inline-block w-fit rounded-lg outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring">
             <BrandMark />
           </Link>
-          <CardTitle className="pt-4">Create account</CardTitle>
-          <CardDescription>Choose a username and password to get started.</CardDescription>
+          <div>
+            <CardTitle className="text-xl">Create account</CardTitle>
+            <CardDescription className="mt-1.5">
+              Choose a username and password to get started.
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label htmlFor="username" className="text-sm font-medium">Username</label>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+            <div className="space-y-2">
+              <label htmlFor="username" className="text-sm font-medium text-foreground">
+                Username
+              </label>
               <Input
                 id="username"
                 autoComplete="username"
-                className="mt-1.5"
                 {...register('username', { required: true })}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="text-sm font-medium">Password</label>
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium text-foreground">
+                Password
+              </label>
               <Input
                 id="password"
                 type="password"
                 autoComplete="new-password"
-                className="mt-1.5"
                 {...register('password', { required: true, minLength: 6 })}
               />
-              <p className="mt-1 text-xs text-gray-400">At least 6 characters</p>
+              <p className="text-xs text-muted-foreground">At least 6 characters</p>
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? 'Creating account…' : 'Create account'}
             </Button>
           </form>
-          <p className="mt-6 text-center text-sm text-gray-500">
-            Have an account? <Link to="/login" className="font-medium text-gray-900 dark:text-gray-100">Sign in</Link>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Have an account?{' '}
+            <Link to="/login" className="font-medium text-primary hover:underline">
+              Sign in
+            </Link>
           </p>
         </CardContent>
       </Card>

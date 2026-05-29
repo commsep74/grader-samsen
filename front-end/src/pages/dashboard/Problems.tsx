@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { PageHeader } from '@/components/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { mockProblems } from '@/lib/mock-data'
 
@@ -11,54 +12,56 @@ const difficultyStyle = {
 export default function Problems() {
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Problems</h1>
-        <p className="mt-1 text-sm text-gray-500">Browse and solve problems from your classes.</p>
-      </div>
+      <PageHeader
+        title="Problems"
+        description="Browse and solve problems from your classes."
+      />
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900">
-              <th className="px-6 py-3 font-medium">#</th>
-              <th className="px-6 py-3 font-medium">Title</th>
-              <th className="px-6 py-3 font-medium">Difficulty</th>
-              <th className="px-6 py-3 font-medium">Solved</th>
-              <th className="px-6 py-3 font-medium">Limit</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockProblems.map((p, i) => (
-              <tr
-                key={p.id}
-                className="border-b border-gray-100 transition-colors hover:bg-gray-50 dark:border-gray-900 dark:hover:bg-gray-900/50"
-              >
-                <td className="px-6 py-4 font-mono text-gray-500">{i + 1}</td>
-                <td className="px-6 py-4">
-                  <Link to={`/app/problems/${p.id}`} className="font-medium hover:underline">
-                    {p.title}
-                  </Link>
-                  <div className="mt-1 flex gap-1">
-                    {p.tags?.map((t) => (
-                      <span key={t} className="text-xs text-gray-400">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <Badge variant={difficultyStyle[p.difficulty]} className="capitalize">
-                    {p.difficulty}
-                  </Badge>
-                </td>
-                <td className="px-6 py-4 text-gray-500">{p.solvedCount}</td>
-                <td className="px-6 py-4 font-mono text-xs text-gray-500">
-                  {p.timeLimit}ms / {p.memoryLimit}MB
-                </td>
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/50 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-3">#</th>
+                <th className="px-6 py-3">Title</th>
+                <th className="px-6 py-3">Difficulty</th>
+                <th className="px-6 py-3">Solved</th>
+                <th className="px-6 py-3">Limit</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {mockProblems.map((p, i) => (
+                <tr key={p.id} className="transition-colors hover:bg-muted/50">
+                  <td className="px-6 py-4 font-mono tabular-nums text-muted-foreground">{i + 1}</td>
+                  <td className="px-6 py-4">
+                    <Link
+                      to={`/app/problems/${p.id}`}
+                      className="font-medium text-foreground hover:text-primary hover:underline"
+                    >
+                      {p.title}
+                    </Link>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      {p.tags?.map((t) => (
+                        <span key={t} className="text-xs text-muted-foreground">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge variant={difficultyStyle[p.difficulty]} className="capitalize">
+                      {p.difficulty}
+                    </Badge>
+                  </td>
+                  <td className="px-6 py-4 tabular-nums text-muted-foreground">{p.solvedCount}</td>
+                  <td className="px-6 py-4 font-mono text-xs tabular-nums text-muted-foreground">
+                    {p.timeLimit}ms / {p.memoryLimit}MB
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

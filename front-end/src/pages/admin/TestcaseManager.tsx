@@ -1,4 +1,5 @@
 import { Eye, EyeOff } from 'lucide-react'
+import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -11,39 +12,36 @@ const mockTestcases = [
 export default function TestcaseManager() {
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Testcase manager</h1>
-        <p className="mt-1 text-sm text-gray-500">Public and hidden testcases per problem.</p>
-      </div>
+      <PageHeader title="Testcase manager" description="Public and hidden testcases per problem." />
 
-      <Card className="shadow-none">
+      <Card>
         <CardHeader>
           <CardTitle className="text-base">Testcases</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <table className="w-full text-sm">
+        <CardContent className="overflow-x-auto p-0">
+          <table className="w-full min-w-[640px] text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs text-gray-500 dark:border-gray-800">
+              <tr className="border-b border-border bg-muted/50 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <th className="px-6 py-3">Problem</th>
                 <th className="px-6 py-3">Input</th>
                 <th className="px-6 py-3">Output</th>
                 <th className="px-6 py-3">Visibility</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border">
               {mockTestcases.map((tc) => (
-                <tr key={tc.id} className="border-b border-gray-100 dark:border-gray-900">
+                <tr key={tc.id} className="transition-colors hover:bg-muted/50">
                   <td className="px-6 py-4">{tc.problem}</td>
                   <td className="px-6 py-4 font-mono text-xs">{tc.input}</td>
                   <td className="px-6 py-4 font-mono text-xs">{tc.output}</td>
                   <td className="px-6 py-4">
                     {tc.hidden ? (
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
-                        <EyeOff className="h-3 w-3" /> Hidden
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <EyeOff className="h-3 w-3" aria-hidden /> Hidden
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
-                        <Eye className="h-3 w-3" /> Public
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Eye className="h-3 w-3" aria-hidden /> Public
                       </span>
                     )}
                   </td>

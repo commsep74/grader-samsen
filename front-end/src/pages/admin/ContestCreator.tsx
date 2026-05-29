@@ -1,3 +1,4 @@
+import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -6,34 +7,43 @@ import { toast } from 'sonner'
 
 export default function ContestCreator() {
   return (
-    <div className="space-y-8 max-w-xl">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Contest creator</h1>
-        <p className="mt-1 text-sm text-gray-500">Schedule contests, freeze scoreboard, penalty rules.</p>
-      </div>
+    <div className="max-w-xl space-y-8">
+      <PageHeader
+        title="Contest creator"
+        description="Schedule contests, freeze scoreboard, penalty rules."
+      />
 
-      <Card className="shadow-none">
+      <Card>
         <CardHeader>
           <CardTitle className="text-base">New contest</CardTitle>
           <CardDescription>Active: {mockContest.title}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">Title</label>
-            <Input className="mt-1.5" defaultValue={mockContest.title} />
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <label htmlFor="contest-title" className="text-sm font-medium text-foreground">
+              Title
+            </label>
+            <Input id="contest-title" defaultValue={mockContest.title} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">Start</label>
-              <Input type="datetime-local" className="mt-1.5" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label htmlFor="contest-start" className="text-sm font-medium text-foreground">
+                Start
+              </label>
+              <Input id="contest-start" type="datetime-local" />
             </div>
-            <div>
-              <label className="text-sm font-medium">End</label>
-              <Input type="datetime-local" className="mt-1.5" />
+            <div className="space-y-2">
+              <label htmlFor="contest-end" className="text-sm font-medium text-foreground">
+                End
+              </label>
+              <Input id="contest-end" type="datetime-local" />
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="rounded border-gray-300" />
+          <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-border text-primary focus-visible:ring-2 focus-visible:ring-ring"
+            />
             Freeze scoreboard in last hour
           </label>
           <Button onClick={() => toast.success('Contest saved')}>Save contest</Button>

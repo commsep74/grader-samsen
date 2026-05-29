@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { BookOpen, Code2, Trophy, Activity } from 'lucide-react'
+import { PageHeader } from '@/components/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAppStore } from '@/store/useAppStore'
 import { mockAnnouncements, mockAssignments, mockContest, mockLeaderboard, mockClassrooms } from '@/lib/mock-data'
@@ -15,13 +16,8 @@ export default function DashboardHome() {
   const acceptedSubmissions = userSubmissions.filter((s) => s.verdict === 'Accepted')
   const solvedCount = new Set(acceptedSubmissions.map((s) => s.problemId)).size
 
-  // Active classrooms count
   const activeClassCount = isStudent ? joinedIds.length : mockClassrooms.length
-
-  // Problems solved count
   const problemsSolvedText = isStudent ? solvedCount.toString() : '24'
-
-  // Class rank
   const classRankText = isStudent ? (joinedIds.length > 0 ? '#3' : 'N/A') : '#3'
 
   const stats = [
@@ -31,7 +27,6 @@ export default function DashboardHome() {
     { label: 'Streak', value: `${user?.streak ?? 0} days`, icon: Activity },
   ]
 
-  // Filter assignments based on enrolled classrooms
   const enrolledClassNames = mockClassrooms
     .filter((c) => joinedIds.includes(c.id))
     .map((c) => c.name.toLowerCase().replace(/[^a-z0-9]/g, ''))
@@ -40,38 +35,36 @@ export default function DashboardHome() {
     ? mockAssignments.filter((a) => {
         const assignmentClassClean = a.className.toLowerCase().replace(/[^a-z0-9]/g, '')
         return enrolledClassNames.some(
-          (name) => assignmentClassClean.includes(name) || name.includes(assignmentClassClean)
+          (name) => assignmentClassClean.includes(name) || name.includes(assignmentClassClean),
         )
       })
     : mockAssignments
 
-  // Filter announcements
   const studentAnnouncements = isStudent
     ? mockAnnouncements.filter((a) => joinedIds.includes(a.classId))
     : mockAnnouncements
 
-  // Contest visibility
   const showContest = !isStudent || joinedIds.length > 0
 
   return (
-    <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {user?.name?.split(' ')[0] ?? 'there'}</h1>
-        <p className="mt-1 text-sm text-gray-500">Your assignments, contest, and recent activity.</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'there'}`}
+        description="Your assignments, contest, and recent activity."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => {
           const Icon = s.icon
           return (
-            <Card key={s.label} className="shadow-none border-gray-200 dark:border-gray-800">
-              <CardContent className="flex items-center gap-4 p-6">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
-                  <Icon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            <Card key={s.label}>
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-accent text-primary">
+                  <Icon className="h-5 w-5" aria-hidden />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{s.label}</p>
-                  <p className="text-xl font-bold mt-0.5">{s.value}</p>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{s.label}</p>
+                  <p className="mt-0.5 text-xl font-bold tabular-nums text-foreground">{s.value}</p>
                 </div>
               </CardContent>
             </Card>
@@ -80,23 +73,27 @@ export default function DashboardHome() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent assignments */}
-        <Card className="shadow-none border-gray-200 dark:border-gray-800">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800">
+        <Card>
+          <CardHeader className="border-b border-border py-4">
             <CardTitle className="text-sm font-medium">Recent assignments</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {studentAssignments.length === 0 ? (
-              <p className="p-6 text-center text-sm text-gray-500">No active assignments due.</p>
+              <p className="p-6 text-center text-sm text-muted-foreground">No active assignments due.</p>
             ) : (
-              <ul className="divide-y divide-gray-200 dark:divide-gray-800">
+              <ul className="divide-y divide-border">
                 {studentAssignments.map((a) => (
-                  <li key={a.id} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50 dark:hover:bg-gray-900/10 transition-colors">
+                  <li
+                    key={a.id}
+                    className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-muted/50"
+                  >
                     <div>
-                      <p className="text-sm font-medium">{a.title}</p>
-                      <p className="text-xs text-gray-500">{a.className}</p>
+                      <p className="text-sm font-medium text-foreground">{a.title}</p>
+                      <p className="text-xs text-muted-foreground">{a.className}</p>
                     </div>
-                    <span className="text-xs text-gray-500">{new Date(a.dueAt).toLocaleDateString()}</span>
+                    <span className="text-xs tabular-nums text-muted-foreground">
+                      {new Date(a.dueAt).toLocaleDateString()}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -104,53 +101,56 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
 
-        {/* Active contest */}
-        <Card className="shadow-none border-gray-200 dark:border-gray-800">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Active contest</CardTitle>
-              {showContest && (
-                <Link to="/app/contest" className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">Open →</Link>
-              )}
-            </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border py-4">
+            <CardTitle className="text-sm font-medium">Active contest</CardTitle>
+            {showContest && (
+              <Link to="/app/contest" className="text-xs font-medium text-primary hover:underline">
+                Open →
+              </Link>
+            )}
           </CardHeader>
           <CardContent className="p-6">
             {!showContest ? (
-              <p className="text-sm text-gray-500 text-center py-4">Join a classroom to see active contests.</p>
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                Join a classroom to see active contests.
+              </p>
             ) : (
               <>
-                <p className="font-semibold text-gray-900 dark:text-gray-100">{mockContest.title}</p>
-                <p className="mt-1 text-sm text-gray-500">{mockContest.problemIds.length} problems · Ends {new Date(mockContest.endAt).toLocaleString()}</p>
+                <p className="font-semibold text-foreground">{mockContest.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {mockContest.problemIds.length} problems · Ends{' '}
+                  {new Date(mockContest.endAt).toLocaleString()}
+                </p>
               </>
             )}
           </CardContent>
         </Card>
 
-        {/* Leaderboard preview */}
-        <Card className="shadow-none lg:col-span-2 border-gray-200 dark:border-gray-800">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Leaderboard preview</CardTitle>
-              <Link to="/app/leaderboard" className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">Full board →</Link>
-            </div>
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border py-4">
+            <CardTitle className="text-sm font-medium">Leaderboard preview</CardTitle>
+            <Link to="/app/leaderboard" className="text-xs font-medium text-primary hover:underline">
+              Full board →
+            </Link>
           </CardHeader>
-          <CardContent className="p-0">
-            <table className="w-full text-sm">
+          <CardContent className="overflow-x-auto p-0">
+            <table className="w-full min-w-[320px] text-sm">
               <thead>
-                <tr className="border-b border-gray-200 text-left text-xs font-semibold text-gray-500 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 uppercase tracking-wider">
+                <tr className="border-b border-border bg-muted/50 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   <th className="px-6 py-3">#</th>
                   <th className="px-6 py-3">Name</th>
                   <th className="px-6 py-3">Score</th>
                   <th className="px-6 py-3">Solved</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-900">
+              <tbody className="divide-y divide-border">
                 {mockLeaderboard.slice(0, 3).map((e) => (
-                  <tr key={e.userId} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/10 transition-colors">
-                    <td className="px-6 py-3 font-mono text-gray-500">{e.rank}</td>
+                  <tr key={e.userId} className="transition-colors hover:bg-muted/50">
+                    <td className="px-6 py-3 font-mono tabular-nums text-muted-foreground">{e.rank}</td>
                     <td className="px-6 py-3 font-medium">{e.name}</td>
-                    <td className="px-6 py-3 font-mono">{e.score}</td>
-                    <td className="px-6 py-3">{e.solved}</td>
+                    <td className="px-6 py-3 font-mono tabular-nums">{e.score}</td>
+                    <td className="px-6 py-3 tabular-nums">{e.solved}</td>
                   </tr>
                 ))}
               </tbody>
@@ -158,20 +158,21 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
 
-        {/* Announcements */}
-        <Card className="shadow-none lg:col-span-2 border-gray-200 dark:border-gray-800">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800">
+        <Card className="lg:col-span-2">
+          <CardHeader className="border-b border-border py-4">
             <CardTitle className="text-sm font-medium">Announcements</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 p-6">
             {studentAnnouncements.length === 0 ? (
-              <p className="text-center text-sm text-gray-500 py-4">No recent announcements.</p>
+              <p className="py-4 text-center text-sm text-muted-foreground">No recent announcements.</p>
             ) : (
               studentAnnouncements.map((a) => (
-                <div key={a.id} className="border-l-2 border-indigo-500 pl-4">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{a.title}</p>
-                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{a.body}</p>
-                  <p className="mt-2 text-xs text-gray-400 font-mono">{new Date(a.createdAt).toLocaleDateString()}</p>
+                <div key={a.id} className="border-l-2 border-primary pl-4">
+                  <p className="text-sm font-semibold text-foreground">{a.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{a.body}</p>
+                  <p className="mt-2 font-mono text-xs text-muted-foreground">
+                    {new Date(a.createdAt).toLocaleDateString()}
+                  </p>
                 </div>
               ))
             )}

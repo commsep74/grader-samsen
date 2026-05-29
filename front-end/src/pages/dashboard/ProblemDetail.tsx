@@ -63,11 +63,11 @@ export default function ProblemDetail() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Link to="/app/problems" className="hover:text-gray-900">Problems</Link>
-        <span>/</span>
-        <span className="text-gray-900 dark:text-gray-100">{problem.title}</span>
-      </div>
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link to="/app/problems" className="transition-colors hover:text-primary">Problems</Link>
+        <span aria-hidden>/</span>
+        <span className="text-foreground">{problem.title}</span>
+      </nav>
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="lg:w-[42%] space-y-4">
@@ -75,29 +75,29 @@ export default function ProblemDetail() {
             <h1 className="text-xl font-semibold">{problem.title}</h1>
             <div className="mt-2 flex gap-2">
               <Badge variant="outline" className="capitalize">{problem.difficulty}</Badge>
-              <span className="text-xs text-gray-500 font-mono">
+              <span className="font-mono text-xs text-muted-foreground">
                 {problem.timeLimit}ms · {problem.memoryLimit}MB
               </span>
             </div>
           </div>
-          <Card className="shadow-none">
+          <Card>
             <CardContent className="prose-statement p-6 text-sm" dangerouslySetInnerHTML={{ __html: statementHtml }} />
           </Card>
-          <div className="rounded-lg border border-gray-200 shadow-none dark:border-gray-800">
-            <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+          <Card>
+            <div className="border-b border-border px-6 py-4">
               <h3 className="text-sm font-medium">Examples</h3>
             </div>
             <div className="space-y-4 p-6 text-sm">
               <div>
-                <p className="text-xs text-gray-500">Input</p>
-                <pre className="mt-1 rounded-md bg-gray-50 p-2 font-mono dark:bg-gray-900">3 5</pre>
+                <p className="text-xs text-muted-foreground">Input</p>
+                <pre className="mt-1 rounded-md bg-muted p-2 font-mono text-sm">3 5</pre>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Output</p>
-                <pre className="mt-1 rounded-md bg-gray-50 p-2 font-mono dark:bg-gray-900">8</pre>
+                <p className="text-xs text-muted-foreground">Output</p>
+                <pre className="mt-1 rounded-md bg-muted p-2 font-mono text-sm">8</pre>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
 
         <div className="flex-1 space-y-4">
@@ -110,7 +110,7 @@ export default function ProblemDetail() {
                 const tpl = LANGUAGES.find((l) => l.id === lang)?.template
                 if (tpl && !draftCode[problem.id]) setCode(tpl)
               }}
-              className="h-9 rounded-md border border-gray-200 bg-white px-3 font-sans text-sm dark:border-gray-800 dark:bg-gray-950"
+              className="h-10 min-h-10 rounded-md border border-input bg-card px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {LANGUAGES.map((l) => (
                 <option key={l.id} value={l.id}>{l.label}</option>
@@ -123,19 +123,21 @@ export default function ProblemDetail() {
             <Button variant="outline" size="sm">
               <Upload className="h-4 w-4" /> Upload file
             </Button>
-            <span className="text-xs text-gray-400 ml-auto">Autosaved locally</span>
+            <span className="ml-auto text-xs text-muted-foreground">Autosaved locally</span>
           </div>
 
           <CodeEditor problemId={problem.id} language={language} value={code} onChange={setCode} />
 
           {result && (
-            <Card className="shadow-none">
-              <CardContent className="p-4 space-y-3">
+            <Card>
+              <CardContent className="space-y-3 p-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-500">Verdict</span>
+                  <span className="text-sm text-muted-foreground">Verdict</span>
                   {result.verdict && <VerdictBadge verdict={result.verdict} />}
                   {result.runtime != null && (
-                    <span className="text-xs font-mono text-gray-500">{result.runtime}ms · {result.memory}KB</span>
+                    <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                      {result.runtime}ms · {result.memory}KB
+                    </span>
                   )}
                 </div>
                 {result.testcaseResults && (
@@ -143,11 +145,11 @@ export default function ProblemDetail() {
                     {result.testcaseResults.map((tc, i) => (
                       <div
                         key={tc.id}
-                        className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs dark:border-gray-800"
+                        className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-xs"
                       >
-                        <span className="text-gray-500">#{i + 1}</span>
+                        <span className="text-muted-foreground">#{i + 1}</span>
                         <VerdictBadge verdict={tc.status} />
-                        {!tc.isPublic && <span className="text-gray-400">hidden</span>}
+                        {!tc.isPublic && <span className="text-muted-foreground/70">hidden</span>}
                       </div>
                     ))}
                   </div>

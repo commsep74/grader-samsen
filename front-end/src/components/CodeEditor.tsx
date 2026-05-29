@@ -24,7 +24,7 @@ export default function CodeEditor({
     language === 'cpp' ? 'cpp' : language === 'python' ? 'python' : language === 'java' ? 'java' : 'javascript'
 
   return (
-    <div className="overflow-hidden rounded-md border border-gray-200 dark:border-gray-800">
+    <div className="overflow-hidden rounded-lg border border-border shadow-sm">
       <Editor
         height={height}
         language={monacoLang}

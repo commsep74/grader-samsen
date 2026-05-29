@@ -28,37 +28,39 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-950">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <Link to="/" className="text-sm">
+    <div className="gradient-auth flex min-h-dvh items-center justify-center px-4 py-12">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-4">
+          <Link to="/" className="inline-block w-fit rounded-lg outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring">
             <BrandMark />
           </Link>
-          <CardTitle className="pt-4">Sign in</CardTitle>
-          <CardDescription>Enter your username and password to continue.</CardDescription>
+          <div>
+            <CardTitle className="text-xl">Sign in</CardTitle>
+            <CardDescription className="mt-1.5">
+              Enter your username and password to continue.
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label htmlFor="username" className="text-sm font-medium">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+            <div className="space-y-2">
+              <label htmlFor="username" className="text-sm font-medium text-foreground">
                 Username
               </label>
               <Input
                 id="username"
                 autoComplete="username"
-                className="mt-1.5"
                 {...register('username', { required: true })}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="text-sm font-medium">
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium text-foreground">
                 Password
               </label>
               <Input
                 id="password"
                 type="password"
                 autoComplete="current-password"
-                className="mt-1.5"
                 {...register('password', { required: true })}
               />
             </div>
@@ -66,9 +68,9 @@ export default function Login() {
               {isSubmitting ? 'Signing in…' : 'Sign in'}
             </Button>
           </form>
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-muted-foreground">
             No account?{' '}
-            <Link to="/register" className="font-medium text-gray-900 dark:text-gray-100">
+            <Link to="/register" className="font-medium text-primary hover:underline">
               Register
             </Link>
           </p>

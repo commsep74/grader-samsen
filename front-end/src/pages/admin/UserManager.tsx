@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Download, Upload, Eye, EyeOff, Trash2, Search, Users, ShieldAlert } from 'lucide-react'
+import { PageHeader } from '@/components/PageHeader'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { fetchUsers, deleteUser } from '@/lib/api'
@@ -63,61 +65,62 @@ export default function UserManager() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">User Manager</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage real database student credentials, view passwords, and delete accounts.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => toast.message('CSV Import is not implemented yet.')}>
-            <Upload className="h-4 w-4 mr-1" /> Import CSV
-          </Button>
-          <Button variant="outline" onClick={() => toast.success('Roster list exported successfully!')}>
-            <Download className="h-4 w-4 mr-1" /> Export CSV
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="User manager"
+        description="Manage student credentials, view passwords, and delete accounts."
+      >
+        <Button variant="outline" onClick={() => toast.message('CSV Import is not implemented yet.')}>
+          <Upload className="mr-1 h-4 w-4" /> Import CSV
+        </Button>
+        <Button variant="outline" onClick={() => toast.success('Roster list exported successfully!')}>
+          <Download className="mr-1 h-4 w-4" /> Export CSV
+        </Button>
+      </PageHeader>
 
       {/* Analytics stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center gap-4">
-          <div className="p-2.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+        <Card>
+          <CardContent className="flex items-center gap-4 p-4">
+          <div className="rounded-lg bg-accent p-2.5 text-primary">
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Users</p>
-            <h3 className="text-xl font-bold mt-0.5">{users.length}</h3>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Total users</p>
+            <h3 className="mt-0.5 text-xl font-bold tabular-nums">{users.length}</h3>
           </div>
-        </div>
-        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center gap-4">
-          <div className="p-2.5 rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-4 p-4">
+          <div className="rounded-lg bg-green-50 p-2.5 text-green-600 dark:bg-green-950 dark:text-green-400">
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Students</p>
-            <h3 className="text-xl font-bold mt-0.5">{studentCount}</h3>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Students</p>
+            <h3 className="mt-0.5 text-xl font-bold tabular-nums">{studentCount}</h3>
           </div>
-        </div>
-        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center gap-4">
-          <div className="p-2.5 rounded-md bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-4 p-4">
+          <div className="rounded-lg bg-amber-50 p-2.5 text-amber-600 dark:bg-amber-950 dark:text-amber-400">
             <ShieldAlert className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Teachers & Admins</p>
-            <h3 className="text-xl font-bold mt-0.5">{teacherCount}</h3>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Teachers & admins</p>
+            <h3 className="mt-0.5 text-xl font-bold tabular-nums">{teacherCount}</h3>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filter and search bar */}
       <div className="flex items-center gap-2 max-w-sm">
         <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
           <Input
             placeholder="Search username, name, or email..."
-            className="pl-9 bg-white dark:bg-gray-950"
+            className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -125,10 +128,11 @@ export default function UserManager() {
       </div>
 
       {/* Table content */}
-      <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
-        <table className="w-full text-sm">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-gray-900">
+            <tr className="border-b border-border bg-muted/50 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
               <th className="px-6 py-3 font-semibold">User Info</th>
               <th className="px-6 py-3 font-semibold">Email</th>
               <th className="px-6 py-3 font-semibold">Role</th>
@@ -136,19 +140,19 @@ export default function UserManager() {
               <th className="px-6 py-3 font-semibold text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-900">
+          <tbody className="divide-y divide-border">
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                     <span>Loading registered users…</span>
                   </div>
                 </td>
               </tr>
             ) : filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">
                   No users found in the database.
                 </td>
               </tr>
@@ -156,12 +160,12 @@ export default function UserManager() {
               filteredUsers.map((u) => {
                 const isPasswordVisible = visiblePasswords[u.id] || false
                 return (
-                  <tr key={u.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/20 transition-colors">
+                  <tr key={u.id} className="transition-colors hover:bg-muted/50">
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-gray-900 dark:text-gray-100">{u.name || 'No Name'}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">@{u.username}</div>
+                      <div className="font-semibold text-foreground">{u.name || 'No Name'}</div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">@{u.username}</div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{u.email || 'N/A'}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{u.email || 'N/A'}</td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -182,7 +186,7 @@ export default function UserManager() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                            className="h-9 w-9 text-muted-foreground"
                             onClick={() => togglePasswordVisibility(u.id)}
                             aria-label={isPasswordVisible ? 'Hide Password' : 'Show Password'}
                           >
@@ -195,7 +199,7 @@ export default function UserManager() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+                        className="text-destructive hover:bg-red-50 hover:text-destructive dark:hover:bg-red-950/30"
                         onClick={() => handleDeleteUser(u.id, u.username)}
                         aria-label={`Delete @${u.username}`}
                       >
@@ -208,6 +212,7 @@ export default function UserManager() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )

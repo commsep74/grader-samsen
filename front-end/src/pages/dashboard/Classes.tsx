@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Copy, Plus } from 'lucide-react'
 import { toast } from 'sonner'
+import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,15 +28,10 @@ export default function Classes() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Classes</h1>
-          <p className="mt-1 text-sm text-gray-500">Join with a code or view enrolled classes.</p>
-        </div>
-      </div>
+      <PageHeader title="Classes" description="Join with a code or view enrolled classes." />
 
       {isStudent && (
-        <Card className="max-w-md shadow-none">
+        <Card className="max-w-md">
           <CardHeader>
             <CardTitle className="text-base">Join class</CardTitle>
             <CardDescription>Enter the code from your teacher.</CardDescription>
@@ -45,7 +41,7 @@ export default function Classes() {
               placeholder="e.g. ALGO7X2"
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              className="font-mono bg-white dark:bg-gray-950"
+              className="font-mono uppercase"
             />
             <Button
               onClick={() => {
@@ -73,18 +69,18 @@ export default function Classes() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         {enrolledClasses.length === 0 ? (
-          <div className="col-span-2 text-center text-sm text-gray-500 py-10 bg-gray-50 dark:bg-gray-900 rounded-lg border border-dashed border-gray-200 dark:border-gray-800">
+          <div className="col-span-2 rounded-xl border border-dashed border-border bg-muted/50 py-10 text-center text-sm text-muted-foreground">
             No classes joined yet. Enter a class code above to enroll.
           </div>
         ) : (
           enrolledClasses.map((c) => (
-            <Card key={c.id} className="shadow-none">
+            <Card key={c.id}>
               <CardHeader>
                 <CardTitle className="text-base">{c.name}</CardTitle>
                 <CardDescription>{c.description ?? `${c.studentCount} students`}</CardDescription>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
-                <code className="rounded-md border border-gray-200 px-2 py-1 font-mono text-sm dark:border-gray-800">
+                <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-sm">
                   {c.code}
                 </code>
                 <Button variant="ghost" size="icon" onClick={() => copyCode(c.code)}>
