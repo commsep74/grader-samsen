@@ -19,12 +19,12 @@ const features = [
   { icon: Trophy, title: 'Live contests', desc: 'Real-time leaderboard, penalty, freeze scoreboard.' },
   { icon: ClipboardList, title: 'Submission history', desc: 'Past attempts, verdicts, runtime, and memory stats.' },
   { icon: BarChart3, title: 'Teacher analytics', desc: 'Class progress, acceptance rates, and score exports.' },
-  { icon: Zap, title: 'Fast judging', desc: 'Docker sandbox or Judge0 — sub-second feedback.' },
+  { icon: Zap, title: 'Fast judging', desc: 'Using a compiler API.' },
 ]
 
 const faqs = [
   { q: 'Is it free for schools?', a: 'Yes — core features are free for educational use.' },
-  { q: 'Which languages are supported?', a: 'C++, Python, Java, JavaScript, and more via Judge0.' },
+  { q: 'Which languages are supported?', a: 'C++, Python, Java, JavaScript, and more.' },
   { q: 'Can teachers import students?', a: 'CSV import and class codes are built in.' },
 ]
 
