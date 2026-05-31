@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { chartTick, chartTooltipStyle } from '@/lib/utils'
 
 const acRate = [
-  { week: 'W1', rate: 62 },
-  { week: 'W2', rate: 68 },
-  { week: 'W3', rate: 71 },
-  { week: 'W4', rate: 74 },
+  { week: 'W1', rate: 0 },
+  { week: 'W2', rate: 0 },
+  { week: 'W3', rate: 0 },
+  { week: 'W4', rate: 0 },
 ]
 
 export default function Analytics() {
@@ -44,7 +44,7 @@ export default function Analytics() {
         <Card>
           <CardContent className="p-6">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Plagiarism flags</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums">2</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums">0</p>
           </CardContent>
         </Card>
         <Card>

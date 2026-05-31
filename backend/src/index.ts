@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { loadEnv } from './env.js'
 import { authRouter } from './routes/auth.js'
+import { classroomsRouter } from './routes/classrooms.js'
 
 const { port, frontendUrl } = loadEnv()
 
@@ -33,6 +34,7 @@ app.get('/health', (_req, res) => {
 })
 
 app.use('/api/auth', authRouter)
+app.use('/api/classrooms', classroomsRouter)
 
 app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`)

@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
-import { BookOpen, Code2, Trophy, Activity } from 'lucide-react'
+import { BookOpen, Code2, Trophy, Activity, Shield, Medal, Crown } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAppStore } from '@/store/useAppStore'
-import { mockAnnouncements, mockAssignments, mockContest, mockLeaderboard, mockClassrooms } from '@/lib/mock-data'
+import { mockAnnouncements, mockAssignments, mockLeaderboard, mockClassrooms } from '@/lib/mock-data'
+import { getRankFromXp } from '@/lib/ranks'
+import { cn } from '@/lib/utils'
 
 export default function DashboardHome() {
   const { user, studentJoinedClassrooms, studentSubmissions } = useAppStore()
@@ -17,14 +19,36 @@ export default function DashboardHome() {
   const solvedCount = new Set(acceptedSubmissions.map((s) => s.problemId)).size
 
   const activeClassCount = isStudent ? joinedIds.length : mockClassrooms.length
-  const problemsSolvedText = isStudent ? solvedCount.toString() : '24'
-  const classRankText = isStudent ? (joinedIds.length > 0 ? '#3' : 'N/A') : '#3'
+  const problemsSolvedText = isStudent ? solvedCount.toString() : '0'
+
+  const userXp = user?.xp ?? 0
+  const { currentRank, nextRank, xpToNext } = getRankFromXp(userXp)
+
+  const rankIcons = {
+    Shield,
+    Medal,
+    Trophy,
+    Crown,
+  }
+  const RankIcon = rankIcons[currentRank.iconName]
 
   const stats = [
-    { label: 'Problems solved', value: problemsSolvedText, icon: Code2 },
-    { label: 'Class rank', value: classRankText, icon: Trophy },
-    { label: 'Active classes', value: activeClassCount.toString(), icon: BookOpen },
-    { label: 'Streak', value: `${user?.streak ?? 0} days`, icon: Activity },
+    { label: 'Problems solved', value: problemsSolvedText, icon: Code2, colorClass: 'text-primary', bgColorClass: 'bg-accent' },
+    ...(isStudent
+      ? [
+          {
+            label: 'Rank',
+            value: currentRank.label,
+            icon: RankIcon,
+            colorClass: currentRank.colorClass,
+            bgColorClass: currentRank.bgColorClass,
+            borderColorClass: currentRank.borderColorClass,
+            subtext: nextRank ? `${xpToNext} XP to ${nextRank.label}` : 'Max tier achieved',
+          },
+        ]
+      : []),
+    { label: 'Active classes', value: activeClassCount.toString(), icon: BookOpen, colorClass: 'text-primary', bgColorClass: 'bg-accent' },
+    { label: 'Streak', value: `${user?.streak ?? 0} days`, icon: Activity, colorClass: 'text-primary', bgColorClass: 'bg-accent' },
   ]
 
   const enrolledClassNames = mockClassrooms
@@ -44,27 +68,26 @@ export default function DashboardHome() {
     ? mockAnnouncements.filter((a) => joinedIds.includes(a.classId))
     : mockAnnouncements
 
-  const showContest = !isStudent || joinedIds.length > 0
-
   return (
     <div className="space-y-8">
       <PageHeader
         title={`Welcome back, ${user?.name?.split(' ')[0] ?? 'there'}`}
-        description="Your assignments, contest, and recent activity."
+        description="Your assignments and recent activity."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={cn("grid gap-4 sm:grid-cols-2", isStudent ? "lg:grid-cols-4" : "lg:grid-cols-3")}>
         {stats.map((s) => {
           const Icon = s.icon
           return (
-            <Card key={s.label}>
+            <Card key={s.label} className={cn("transition-all duration-200 hover:shadow-md", s.borderColorClass && `border ${s.borderColorClass}`)}>
               <CardContent className="flex items-center gap-4 p-5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-accent text-primary">
-                  <Icon className="h-5 w-5" aria-hidden />
+                <div className={cn("flex h-11 w-11 items-center justify-center rounded-lg", s.bgColorClass)}>
+                  <Icon className={cn("h-5 w-5", s.colorClass)} aria-hidden />
                 </div>
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{s.label}</p>
                   <p className="mt-0.5 text-xl font-bold tabular-nums text-foreground">{s.value}</p>
+                  {s.subtext && <p className="mt-0.5 text-[10px] font-medium text-muted-foreground">{s.subtext}</p>}
                 </div>
               </CardContent>
             </Card>
@@ -102,63 +125,6 @@ export default function DashboardHome() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between border-b border-border py-4">
-            <CardTitle className="text-sm font-medium">Active contest</CardTitle>
-            {showContest && (
-              <Link to="/app/contest" className="text-xs font-medium text-primary hover:underline">
-                Open →
-              </Link>
-            )}
-          </CardHeader>
-          <CardContent className="p-6">
-            {!showContest ? (
-              <p className="py-4 text-center text-sm text-muted-foreground">
-                Join a classroom to see active contests.
-              </p>
-            ) : (
-              <>
-                <p className="font-semibold text-foreground">{mockContest.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {mockContest.problemIds.length} problems · Ends{' '}
-                  {new Date(mockContest.endAt).toLocaleString()}
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-border py-4">
-            <CardTitle className="text-sm font-medium">Leaderboard preview</CardTitle>
-            <Link to="/app/leaderboard" className="text-xs font-medium text-primary hover:underline">
-              Full board →
-            </Link>
-          </CardHeader>
-          <CardContent className="overflow-x-auto p-0">
-            <table className="w-full min-w-[320px] text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/50 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <th className="px-6 py-3">#</th>
-                  <th className="px-6 py-3">Name</th>
-                  <th className="px-6 py-3">Score</th>
-                  <th className="px-6 py-3">Solved</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {mockLeaderboard.slice(0, 3).map((e) => (
-                  <tr key={e.userId} className="transition-colors hover:bg-muted/50">
-                    <td className="px-6 py-3 font-mono tabular-nums text-muted-foreground">{e.rank}</td>
-                    <td className="px-6 py-3 font-medium">{e.name}</td>
-                    <td className="px-6 py-3 font-mono tabular-nums">{e.score}</td>
-                    <td className="px-6 py-3 tabular-nums">{e.solved}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
           <CardHeader className="border-b border-border py-4">
             <CardTitle className="text-sm font-medium">Announcements</CardTitle>
           </CardHeader>
@@ -175,6 +141,41 @@ export default function DashboardHome() {
                   </p>
                 </div>
               ))
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border py-4">
+            <CardTitle className="text-sm font-medium">Leaderboard preview</CardTitle>
+            <Link to="/app/leaderboard" className="text-xs font-medium text-primary hover:underline">
+              Full board →
+            </Link>
+          </CardHeader>
+          <CardContent className="overflow-x-auto p-0">
+            {mockLeaderboard.length === 0 ? (
+              <p className="p-6 text-center text-sm text-muted-foreground">No rankings yet.</p>
+            ) : (
+              <table className="w-full min-w-[320px] text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <th className="px-6 py-3">#</th>
+                    <th className="px-6 py-3">Name</th>
+                    <th className="px-6 py-3">Score</th>
+                    <th className="px-6 py-3">Solved</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {mockLeaderboard.slice(0, 3).map((e) => (
+                    <tr key={e.userId} className="transition-colors hover:bg-muted/50">
+                      <td className="px-6 py-3 font-mono tabular-nums text-muted-foreground">{e.rank}</td>
+                      <td className="px-6 py-3 font-medium">{e.name}</td>
+                      <td className="px-6 py-3 font-mono tabular-nums">{e.score}</td>
+                      <td className="px-6 py-3 tabular-nums">{e.solved}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </CardContent>
         </Card>

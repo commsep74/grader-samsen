@@ -10,14 +10,13 @@ import Problems from '@/pages/dashboard/Problems'
 import ProblemDetail from '@/pages/dashboard/ProblemDetail'
 import Submissions from '@/pages/dashboard/Submissions'
 import Leaderboard from '@/pages/dashboard/Leaderboard'
-import Contest from '@/pages/dashboard/Contest'
 import Profile from '@/pages/dashboard/Profile'
 import Settings from '@/pages/dashboard/Settings'
 import AdminDashboard from '@/pages/admin/AdminDashboard'
+import AdminClassrooms from '@/pages/admin/Classrooms'
 import ProblemManager from '@/pages/admin/ProblemManager'
 import TestcaseManager from '@/pages/admin/TestcaseManager'
 import UserManager from '@/pages/admin/UserManager'
-import ContestCreator from '@/pages/admin/ContestCreator'
 import Analytics from '@/pages/admin/Analytics'
 import { useAppStore } from '@/store/useAppStore'
 
@@ -44,17 +43,16 @@ function App() {
           <Route path="problems/:id" element={<ProblemDetail />} />
           <Route path="submissions" element={<Submissions />} />
           <Route path="leaderboard" element={<Leaderboard />} />
-          <Route path="contest" element={<Contest />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
         </Route>
 
         <Route path="/admin" element={<DashboardLayout admin />}>
           <Route index element={<AdminDashboard />} />
+          <Route path="classrooms" element={<AdminClassrooms />} />
           <Route path="problems" element={<ProblemManager />} />
           <Route path="testcases" element={<TestcaseManager />} />
           <Route path="users" element={<UserManager />} />
-          <Route path="contests" element={<ContestCreator />} />
           <Route path="analytics" element={<Analytics />} />
         </Route>
 

@@ -2,7 +2,6 @@ import type {
   Announcement,
   Assignment,
   Classroom,
-  Contest,
   LeaderboardEntry,
   Problem,
   Submission,
@@ -41,7 +40,7 @@ export const mockProblems: Problem[] = [
     memoryLimit: 256,
     createdBy: 't1',
     tags: ['math', 'implementation'],
-    solvedCount: 342,
+    solvedCount: 0,
   },
   {
     id: 'p2',
@@ -53,7 +52,7 @@ export const mockProblems: Problem[] = [
     memoryLimit: 512,
     createdBy: 't1',
     tags: ['graph', 'bfs'],
-    solvedCount: 128,
+    solvedCount: 0,
   },
   {
     id: 'p3',
@@ -65,7 +64,7 @@ export const mockProblems: Problem[] = [
     memoryLimit: 512,
     createdBy: 't1',
     tags: ['dp', 'trees'],
-    solvedCount: 45,
+    solvedCount: 0,
   },
 ]
 
@@ -124,30 +123,9 @@ export const mockSubmissions: Submission[] = [
   },
 ]
 
-export const mockLeaderboard: LeaderboardEntry[] = [
-  { rank: 1, userId: 'u3', name: 'Maya Patel', score: 450, penalty: 120, solved: 5 },
-  { rank: 2, userId: 'u1', name: 'Alex Chen', score: 380, penalty: 180, solved: 4 },
-  { rank: 3, userId: 'u4', name: 'Jordan Lee', score: 320, penalty: 240, solved: 4 },
-  { rank: 4, userId: 'u5', name: 'Sam Kim', score: 280, penalty: 300, solved: 3 },
-]
-
-export const mockContest: Contest = {
-  id: 'contest1',
-  title: 'Weekly Challenge #12',
-  startAt: '2026-05-24T08:00:00Z',
-  endAt: '2026-05-24T11:00:00Z',
-  problemIds: ['p1', 'p2', 'p3'],
-  frozen: false,
-}
+export const mockLeaderboard: LeaderboardEntry[] = []
 
 export const mockAnnouncements: Announcement[] = [
-  {
-    id: 'a1',
-    title: 'Contest #12 this Saturday',
-    body: 'Register before Friday. Penalty +20 min per wrong submission.',
-    classId: 'c1',
-    createdAt: '2026-05-20T10:00:00Z',
-  },
   {
     id: 'a2',
     title: 'New problems added',

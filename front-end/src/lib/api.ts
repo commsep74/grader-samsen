@@ -1,4 +1,4 @@
-import type { User } from '@/types'
+import type { User, Classroom } from '@/types'
 
 const API_URL = import.meta.env.VITE_API_URL ?? ''
 
@@ -62,10 +62,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data
 }
 
-export async function register(username: string, password: string): Promise<AuthResponse> {
+export async function register(username: string, password: string, role?: string): Promise<AuthResponse> {
   const data = await request<AuthResponse>('/api/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ username, password, role }),
   })
 
   if (data.session) {
@@ -128,4 +128,66 @@ export async function deleteUser(id: string): Promise<void> {
   await request<{ success: boolean }>(`/api/auth/users/${id}`, {
     method: 'DELETE',
   })
+}
+
+export async function updateUserRole(id: string, role: string): Promise<User> {
+  const data = await request<{ user: User }>(`/api/auth/users/${id}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
+  })
+  return data.user
+}
+
+
+export async function fetchClassrooms(): Promise<Classroom[]> {
+  const data = await request<{ classrooms: Classroom[] }>('/api/classrooms')
+  return data.classrooms
+}
+
+export async function createClassroom(name: string, description?: string): Promise<Classroom> {
+  const data = await request<{ classroom: Classroom }>('/api/classrooms', {
+    method: 'POST',
+    body: JSON.stringify({ name, description }),
+  })
+  return data.classroom
+}
+
+export async function joinClassroomByCode(code: string): Promise<Classroom> {
+  const data = await request<{ classroom: Classroom }>('/api/classrooms/join', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  })
+  return data.classroom
+}
+
+export async function leaveClassroom(classId: string): Promise<void> {
+  await request<{ success: boolean }>(`/api/classrooms/${classId}/leave`, {
+    method: 'DELETE',
+  })
+}
+
+export async function deleteClassroom(classId: string): Promise<void> {
+  await request<{ success: boolean }>(`/api/classrooms/${classId}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function fetchClassroomMembers(classId: string): Promise<User[]> {
+  const data = await request<{ members: User[] }>(`/api/classrooms/${classId}/members`)
+  return data.members
+}
+
+export interface XPLeaderboardEntry {
+  rank: number
+  userId: string
+  name: string
+  username: string
+  xp: number
+  streak: number
+  tier: string
+}
+
+export async function fetchLeaderboard(): Promise<XPLeaderboardEntry[]> {
+  const data = await request<{ leaderboard: XPLeaderboardEntry[] }>('/api/auth/leaderboard')
+  return data.leaderboard
 }

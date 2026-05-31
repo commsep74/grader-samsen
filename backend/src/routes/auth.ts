@@ -32,7 +32,7 @@ function mapProfile(profile: ProfileRow) {
 }
 
 authRouter.post('/register', async (req, res) => {
-  const { username, password } = req.body as { username?: string; password?: string }
+  const { username, password, role } = req.body as { username?: string; password?: string; role?: string }
 
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password are required.' })
@@ -76,13 +76,18 @@ authRouter.post('/register', async (req, res) => {
     return res.status(400).json({ error: authError?.message ?? 'Failed to create account.' })
   }
 
+  let userRole: 'student' | 'teacher' | 'admin' = 'student'
+  if (role === 'teacher') {
+    userRole = 'teacher'
+  }
+
   const { data: profile, error: profileError } = await supabaseAdmin
     .from('profiles')
     .insert({
       id: authData.user.id,
       username: username.toLowerCase(),
       name: username,
-      role: 'student',
+      role: userRole,
       password: password,
     })
     .select('*')
@@ -308,3 +313,93 @@ authRouter.delete('/users/:id', async (req, res) => {
 
   return res.json({ success: true })
 })
+
+authRouter.get('/leaderboard', async (req, res) => {
+  const authHeader = req.headers.authorization
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+
+  if (!token) {
+    return res.status(401).json({ error: 'Not authenticated.' })
+  }
+
+  const client = createSupabaseClient(token)
+  const { data: userData, error: userError } = await client.auth.getUser(token)
+
+  if (userError || !userData.user) {
+    return res.status(401).json({ error: 'Invalid or expired session.' })
+  }
+
+  const { data: profiles, error: profilesError } = await supabaseAdmin
+    .from('profiles')
+    .select('id, name, username, xp, streak, tier')
+    .eq('role', 'student')
+    .order('xp', { ascending: false })
+
+  if (profilesError) {
+    return res.status(500).json({ error: profilesError.message })
+  }
+
+  const leaderboard = (profiles || []).map((p, index) => ({
+    rank: index + 1,
+    userId: p.id,
+    name: p.name,
+    username: p.username,
+    xp: p.xp ?? 0,
+    streak: p.streak ?? 0,
+    tier: p.tier ?? 'Bronze',
+  }))
+
+  return res.json({ leaderboard })
+})
+
+authRouter.put('/users/:id/role', async (req, res) => {
+  const authHeader = req.headers.authorization
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+
+  if (!token) {
+    return res.status(401).json({ error: 'Not authenticated.' })
+  }
+
+  const client = createSupabaseClient(token)
+  const { data: userData, error: userError } = await client.auth.getUser(token)
+
+  if (userError || !userData.user) {
+    return res.status(401).json({ error: 'Invalid or expired session.' })
+  }
+
+  const { data: currentProfile, error: currentProfileError } = await supabaseAdmin
+    .from('profiles')
+    .select('role')
+    .eq('id', userData.user.id)
+    .single()
+
+  if (currentProfileError || !currentProfile) {
+    return res.status(404).json({ error: 'Caller profile not found.' })
+  }
+
+  if (currentProfile.role !== 'teacher' && currentProfile.role !== 'admin') {
+    return res.status(403).json({ error: 'Only teachers or admins can change user roles.' })
+  }
+
+  const targetUserId = req.params.id
+  const { role } = req.body as { role?: string }
+
+  if (!role || !['student', 'teacher', 'admin'].includes(role)) {
+    return res.status(400).json({ error: 'Invalid role. Must be student, teacher, or admin.' })
+  }
+
+  const { data: updatedProfile, error: updateError } = await supabaseAdmin
+    .from('profiles')
+    .update({ role })
+    .eq('id', targetUserId)
+    .select('*')
+    .single()
+
+  if (updateError || !updatedProfile) {
+    return res.status(500).json({ error: updateError?.message ?? 'Failed to update user role.' })
+  }
+
+  return res.json({ user: mapProfile(updatedProfile as ProfileRow) })
+})
+
+

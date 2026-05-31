@@ -2,7 +2,7 @@
 
 **Live site:** [https://commsep74.github.io/grader-samsen/](https://commsep74.github.io/grader-samsen/)
 
-Online judge for Samsen School — classrooms, contests, and coding practice. UI inspired by Linear, Vercel, and Notion.
+Online judge for Samsen School — classrooms, leaderboards, and coding practice. UI inspired by Linear, Vercel, and Notion.
 
 ## Stack
 
@@ -81,12 +81,12 @@ Register and sign in with **username** and **password** only. Usernames must be 
 
 ## Features (UI + mock data)
 
-**Students:** classes, problems, Monaco submit, verdict/testcases, submissions, leaderboard, contest timer, profile/XP, dark mode.
+**Students:** classes, problems, Monaco submit, verdict/testcases, submissions, leaderboard, profile/XP, dark mode.
 
-**Teachers:** problem/testcase managers, user import/export, contest creator, analytics.
+**Teachers:** problem/testcase managers, user import/export, analytics.
 
 ## Next steps
 
 1. **Judge:** `front-end/src/services/judge.ts` → Judge0 API or Express + Redis queue + Docker workers
-2. **Realtime:** WebSocket for leaderboard/contest updates
+2. **Realtime:** WebSocket for leaderboard updates
 3. **Deploy:** Front-end to GitHub Pages / Vercel; backend to Railway, Render, or Fly.io

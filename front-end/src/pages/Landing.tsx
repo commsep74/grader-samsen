@@ -16,7 +16,7 @@ import { SITE_NAME } from '@/lib/brand'
 const features = [
   { icon: BookOpen, title: 'Classroom management', desc: 'Join with a code, assignments, announcements.' },
   { icon: Code2, title: 'Online compiler', desc: 'Monaco editor, autosave, multi-language support.' },
-  { icon: Trophy, title: 'Live contests', desc: 'Real-time leaderboard, penalty, freeze scoreboard.' },
+  { icon: Trophy, title: 'Leaderboard', desc: 'Track class rankings by problems solved and scores.' },
   { icon: ClipboardList, title: 'Submission history', desc: 'Past attempts, verdicts, runtime, and memory stats.' },
   { icon: BarChart3, title: 'Teacher analytics', desc: 'Class progress, acceptance rates, and score exports.' },
   { icon: Zap, title: 'Fast judging', desc: 'Using a compiler API.' },
@@ -67,10 +67,10 @@ export default function Landing() {
             Samsen online judge platform
           </p>
           <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Built for schools, contests, and coding education.
+            Built for schools and coding education.
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-            Fast, focused judging for Samsen classrooms and contests — assignments, live boards, and analytics in one place.
+            Fast, focused judging for Samsen classrooms — assignments, leaderboards, and analytics in one place.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Button size="lg" asChild>
@@ -133,7 +133,7 @@ export default function Landing() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
           <div>
             <h2 className="text-2xl font-semibold">Ready to start coding?</h2>
-            <p className="mt-2 text-primary-foreground/80">Create a free account for your class or contest.</p>
+            <p className="mt-2 text-primary-foreground/80">Create a free account for your class.</p>
           </div>
           <Button size="lg" variant="secondary" asChild>
             <Link to="/register">

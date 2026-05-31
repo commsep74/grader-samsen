@@ -14,7 +14,7 @@ interface AppState {
   toggleDark: () => void
   setDraftCode: (problemId: string, code: string) => void
   loginWithCredentials: (username: string, password: string) => Promise<User>
-  registerWithCredentials: (username: string, password: string) => Promise<User>
+  registerWithCredentials: (username: string, password: string, role?: string) => Promise<User>
   restoreSession: () => Promise<void>
   logout: () => Promise<void>
   deleteAccount: () => Promise<void>
@@ -48,8 +48,8 @@ export const useAppStore = create<AppState>()(
         set({ user })
         return user
       },
-      registerWithCredentials: async (username, password) => {
-        const { user } = await authApi.register(username, password)
+      registerWithCredentials: async (username, password, role) => {
+        const { user } = await authApi.register(username, password, role)
         set({ user })
         return user
       },

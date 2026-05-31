@@ -4,7 +4,8 @@ import { PageHeader } from '@/components/PageHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
-import { fetchUsers, deleteUser } from '@/lib/api'
+import { fetchUsers, deleteUser, updateUserRole } from '@/lib/api'
+
 import type { User } from '@/types'
 import { Input } from '@/components/ui/input'
 
@@ -167,15 +168,32 @@ export default function UserManager() {
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">{u.email || 'N/A'}</td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          u.role === 'admin' || u.role === 'teacher'
-                            ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
-                            : 'bg-indigo-50 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300'
+                      <select
+                        value={u.role}
+                        onChange={async (e) => {
+                          const newRole = e.target.value
+                          try {
+                            await updateUserRole(u.id, newRole)
+                            toast.success(`Updated @${u.username}'s role to ${newRole}`)
+                            setUsers((prev) =>
+                              prev.map((usr) => (usr.id === u.id ? { ...usr, role: newRole as any } : usr))
+                            )
+                          } catch (error) {
+                            toast.error(error instanceof Error ? error.message : 'Failed to update role')
+                          }
+                        }}
+                        className={`rounded-md border border-input bg-background px-2 py-1 text-xs font-semibold focus:ring-1 focus:ring-primary outline-none cursor-pointer ${
+                          u.role === 'admin'
+                            ? 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40'
+                            : u.role === 'teacher'
+                            ? 'text-green-800 dark:text-green-300 bg-green-50 dark:bg-green-950/40'
+                            : 'text-indigo-800 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40'
                         }`}
                       >
-                        {u.role}
-                      </span>
+                        <option value="student">student</option>
+                        <option value="teacher">teacher</option>
+                        <option value="admin">admin</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">

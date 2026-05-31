@@ -74,18 +74,9 @@ export interface Classroom {
   name: string
   code: string
   teacherId: string
+  teacherName?: string
   studentCount: number
   description?: string
-}
-
-export interface Contest {
-  id: string
-  title: string
-  startAt: string
-  endAt: string
-  classId?: string
-  problemIds: string[]
-  frozen?: boolean
 }
 
 export interface Announcement {

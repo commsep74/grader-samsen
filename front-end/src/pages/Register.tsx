@@ -10,18 +10,23 @@ import { useAppStore } from '@/store/useAppStore'
 interface RegisterForm {
   username: string
   password: string
+  role: 'student' | 'teacher'
 }
 
 export default function Register() {
   const navigate = useNavigate()
   const registerWithCredentials = useAppStore((s) => s.registerWithCredentials)
-  const { register, handleSubmit, formState: { isSubmitting } } = useForm<RegisterForm>()
+  const { register, handleSubmit, formState: { isSubmitting } } = useForm<RegisterForm>({
+    defaultValues: {
+      role: 'student'
+    }
+  })
 
   const onSubmit = async (data: RegisterForm) => {
     try {
-      await registerWithCredentials(data.username, data.password)
+      const user = await registerWithCredentials(data.username, data.password, data.role)
       toast.success('Account created!')
-      navigate('/app')
+      navigate(user.role === 'teacher' || user.role === 'admin' ? '/admin' : '/app')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Registration failed')
     }
@@ -64,6 +69,19 @@ export default function Register() {
                 {...register('password', { required: true, minLength: 6 })}
               />
               <p className="text-xs text-muted-foreground">At least 6 characters</p>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="role" className="text-sm font-medium text-foreground">
+                I am a
+              </label>
+              <select
+                id="role"
+                {...register('role', { required: true })}
+                className="flex h-10 w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+              </select>
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? 'Creating account…' : 'Create account'}

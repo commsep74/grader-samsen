@@ -17,11 +17,15 @@ import {
   BarChart3,
   FileCode,
   ClipboardList,
+  Shield,
+  Medal,
+  Crown,
 } from 'lucide-react'
 import { BrandMark } from '@/components/BrandMark'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/store/useAppStore'
 import { Button } from '@/components/ui/button'
+import { getRankFromXp } from '@/lib/ranks'
 
 const studentNav = [
   { name: 'Home', path: '/app', icon: Home, end: true },
@@ -29,16 +33,15 @@ const studentNav = [
   { name: 'Problems', path: '/app/problems', icon: Code2 },
   { name: 'Submissions', path: '/app/submissions', icon: History },
   { name: 'Leaderboard', path: '/app/leaderboard', icon: Trophy },
-  { name: 'Contest', path: '/app/contest', icon: LayoutDashboard },
   { name: 'Profile', path: '/app/profile', icon: User },
 ]
 
 const teacherNav = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, end: true },
+  { name: 'Classrooms', path: '/admin/classrooms', icon: BookOpen },
   { name: 'Problems', path: '/admin/problems', icon: FileCode },
   { name: 'Testcases', path: '/admin/testcases', icon: ClipboardList },
   { name: 'Users', path: '/admin/users', icon: Users },
-  { name: 'Contests', path: '/admin/contests', icon: Trophy },
   { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
 ]
 
@@ -52,10 +55,10 @@ const mobileStudentNav = [
 
 const mobileTeacherNav = [
   { name: 'Home', path: '/admin', icon: LayoutDashboard, end: true },
+  { name: 'Classrooms', path: '/admin/classrooms', icon: BookOpen },
   { name: 'Problems', path: '/admin/problems', icon: FileCode },
   { name: 'Users', path: '/admin/users', icon: Users },
-  { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
-  { name: 'More', path: '/admin/contests', icon: MoreHorizontal },
+  { name: 'More', path: '/admin/testcases', icon: MoreHorizontal },
 ]
 
 function NavLink({
@@ -95,6 +98,18 @@ export default function DashboardLayout({ admin = false }: { admin?: boolean }) 
     item.end
       ? location.pathname === item.path
       : location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+
+  const isStudent = user?.role === 'student'
+  const userXp = user?.xp ?? 0
+  const { currentRank } = getRankFromXp(userXp)
+
+  const rankIcons = {
+    Shield,
+    Medal,
+    Trophy,
+    Crown,
+  }
+  const RankIcon = rankIcons[currentRank.iconName]
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -144,9 +159,16 @@ export default function DashboardLayout({ admin = false }: { admin?: boolean }) 
             <BrandMark />
           </Link>
           <div className="ml-auto flex items-center gap-3">
-            {user?.tier && (
-              <span className="hidden rounded-full bg-accent px-2.5 py-1 text-xs font-medium text-accent-foreground sm:inline">
-                {user.tier} · {user.xp} XP
+            {isStudent && (
+              <span className={cn(
+                "hidden items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold sm:inline-flex border transition-all duration-300 hover:opacity-90",
+                currentRank.bgColorClass,
+                currentRank.borderColorClass
+              )}>
+                <RankIcon className={cn("h-3.5 w-3.5", currentRank.colorClass)} />
+                <span className={cn("font-semibold", currentRank.colorClass)}>
+                  {currentRank.label} · <span className="font-mono tabular-nums">{userXp} XP</span>
+                </span>
               </span>
             )}
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
