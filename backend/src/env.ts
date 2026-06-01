@@ -34,6 +34,7 @@ export function loadEnv() {
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
   const port = Number(process.env.PORT) || 3001
   const frontendUrl = process.env.FRONTEND_URL?.trim() ?? 'http://localhost:5173'
+  const onlineCompilerApiKey = process.env.ONLINE_COMPILER_API_KEY?.trim()
 
   if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
     throw new Error(
@@ -67,5 +68,6 @@ export function loadEnv() {
     supabaseServiceRoleKey,
     port,
     frontendUrl,
+    onlineCompilerApiKey,
   }
 }

@@ -78,6 +78,12 @@ authRouter.post('/register', async (req, res) => {
 
   let userRole: 'student' | 'teacher' | 'admin' = 'student'
   if (role === 'teacher') {
+    const { teacherCode } = req.body as { teacherCode?: string }
+    const validKey = process.env.TEACHER_SIGNUP_KEY || 'samsen-teacher-secret'
+    if (!teacherCode || teacherCode !== validKey) {
+      await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+      return res.status(403).json({ error: 'Invalid or missing Teacher invitation code.' })
+    }
     userRole = 'teacher'
   }
 
@@ -88,7 +94,7 @@ authRouter.post('/register', async (req, res) => {
       username: username.toLowerCase(),
       name: username,
       role: userRole,
-      password: password,
+      // Do not store the plaintext password in public.profiles for security reasons
     })
     .select('*')
     .single()
@@ -400,6 +406,103 @@ authRouter.put('/users/:id/role', async (req, res) => {
   }
 
   return res.json({ user: mapProfile(updatedProfile as ProfileRow) })
+})
+
+// 9. PUT /profile - Update user's name and username handle
+authRouter.put('/profile', async (req, res) => {
+  const authHeader = req.headers.authorization
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+
+  if (!token) {
+    return res.status(401).json({ error: 'Not authenticated.' })
+  }
+
+  const client = createSupabaseClient(token)
+  const { data: userData, error: userError } = await client.auth.getUser(token)
+
+  if (userError || !userData.user) {
+    return res.status(401).json({ error: 'Invalid or expired session.' })
+  }
+
+  const { name, username } = req.body as { name?: string; username?: string }
+
+  if (!name && !username) {
+    return res.status(400).json({ error: 'Name or username is required.' })
+  }
+
+  const updates: Record<string, any> = {}
+  if (name !== undefined) updates.name = name
+  if (username !== undefined) {
+    if (!isValidUsername(username)) {
+      return res.status(400).json({ error: usernameValidationMessage() })
+    }
+    
+    const { data: existing } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('username', username.toLowerCase())
+      .neq('id', userData.user.id)
+      .maybeSingle()
+
+    if (existing) {
+      return res.status(409).json({ error: 'Username handle is already taken.' })
+    }
+    updates.username = username.toLowerCase()
+  }
+
+  try {
+    const { data: profile, error } = await supabaseAdmin
+      .from('profiles')
+      .update(updates)
+      .eq('id', userData.user.id)
+      .select('*')
+      .single()
+
+    if (error || !profile) {
+      return res.status(500).json({ error: error?.message ?? 'Failed to update profile.' })
+    }
+
+    return res.json({ user: mapProfile(profile as ProfileRow) })
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message ?? 'Server error' })
+  }
+})
+
+// 10. PUT /password - Update user's secure authentication password
+authRouter.put('/password', async (req, res) => {
+  const authHeader = req.headers.authorization
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+
+  if (!token) {
+    return res.status(401).json({ error: 'Not authenticated.' })
+  }
+
+  const client = createSupabaseClient(token)
+  const { data: userData, error: userError } = await client.auth.getUser(token)
+
+  if (userError || !userData.user) {
+    return res.status(401).json({ error: 'Invalid or expired session.' })
+  }
+
+  const { password } = req.body as { password?: string }
+
+  if (!password || password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters.' })
+  }
+
+  try {
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(userData.user.id, {
+      password: password
+    })
+
+    if (error) {
+      return res.status(500).json({ error: error.message })
+    }
+
+    return res.json({ success: true, message: 'Password updated successfully.' })
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message ?? 'Server error' })
+  }
 })
 
 

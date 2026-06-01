@@ -16,7 +16,6 @@ import {
   Users,
   BarChart3,
   FileCode,
-  ClipboardList,
   Shield,
   Medal,
   Crown,
@@ -40,7 +39,6 @@ const teacherNav = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, end: true },
   { name: 'Classrooms', path: '/admin/classrooms', icon: BookOpen },
   { name: 'Problems', path: '/admin/problems', icon: FileCode },
-  { name: 'Testcases', path: '/admin/testcases', icon: ClipboardList },
   { name: 'Users', path: '/admin/users', icon: Users },
   { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
 ]
@@ -58,7 +56,7 @@ const mobileTeacherNav = [
   { name: 'Classrooms', path: '/admin/classrooms', icon: BookOpen },
   { name: 'Problems', path: '/admin/problems', icon: FileCode },
   { name: 'Users', path: '/admin/users', icon: Users },
-  { name: 'More', path: '/admin/testcases', icon: MoreHorizontal },
+  { name: 'More', path: '/admin/analytics', icon: MoreHorizontal },
 ]
 
 function NavLink({

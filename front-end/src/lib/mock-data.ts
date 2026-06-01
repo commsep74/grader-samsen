@@ -29,44 +29,7 @@ export const mockTeacher: User = {
   createdAt: '2024-08-01',
 }
 
-export const mockProblems: Problem[] = [
-  {
-    id: 'p1',
-    title: 'Sum of Two Numbers',
-    statement:
-      'Given two integers **a** and **b**, print their sum.\n\n## Input\nTwo integers on one line.\n\n## Output\nOne integer — the sum.',
-    difficulty: 'easy',
-    timeLimit: 1000,
-    memoryLimit: 256,
-    createdBy: 't1',
-    tags: ['math', 'implementation'],
-    solvedCount: 0,
-  },
-  {
-    id: 'p2',
-    title: 'Shortest Path in Graph',
-    statement:
-      'Find the shortest path from node 1 to node n in an unweighted graph.\n\nUse BFS.',
-    difficulty: 'medium',
-    timeLimit: 2000,
-    memoryLimit: 512,
-    createdBy: 't1',
-    tags: ['graph', 'bfs'],
-    solvedCount: 0,
-  },
-  {
-    id: 'p3',
-    title: 'DP on Trees',
-    statement:
-      'Given a tree with weighted edges, compute the maximum independent set.',
-    difficulty: 'hard',
-    timeLimit: 3000,
-    memoryLimit: 512,
-    createdBy: 't1',
-    tags: ['dp', 'trees'],
-    solvedCount: 0,
-  },
-]
+export const mockProblems: Problem[] = []
 
 export const mockClassrooms: Classroom[] = [
   {
@@ -125,36 +88,13 @@ export const mockSubmissions: Submission[] = [
 
 export const mockLeaderboard: LeaderboardEntry[] = []
 
-export const mockAnnouncements: Announcement[] = [
-  {
-    id: 'a2',
-    title: 'New problems added',
-    body: 'Graph theory set is now available in the problemset.',
-    classId: 'c1',
-    createdAt: '2026-05-18T14:00:00Z',
-  },
-]
+export const mockAnnouncements: Announcement[] = []
 
-export const mockAssignments: Assignment[] = [
-  {
-    id: 'as1',
-    title: 'Graph Theory Basics',
-    className: 'CS301 Algorithm Design',
-    dueAt: '2026-05-24T23:59:00Z',
-    problemIds: ['p2'],
-  },
-  {
-    id: 'as2',
-    title: 'Dynamic Programming I',
-    className: 'CS301 Algorithm Design',
-    dueAt: '2026-05-25T23:59:00Z',
-    problemIds: ['p3'],
-  },
-]
+export const mockAssignments: Assignment[] = []
 
 export const LANGUAGES = [
-  { id: 'cpp', label: 'C++17', template: '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}\n' },
+  { id: 'c', label: 'C', template: '#include <stdio.h>\n\nint main() {\n    \n    return 0;\n}\n' },
+  { id: 'cpp', label: 'C++', template: '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}\n' },
+  { id: 'js', label: 'JavaScript', template: 'const fs = require("fs");\nconst input = fs.readFileSync(0, "utf8").trim().split("\\n");\n' },
   { id: 'python', label: 'Python 3', template: 'def main():\n    pass\n\nif __name__ == "__main__":\n    main()\n' },
-  { id: 'java', label: 'Java', template: 'import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        \n    }\n}\n' },
-  { id: 'javascript', label: 'Node.js', template: 'const fs = require("fs");\nconst input = fs.readFileSync(0, "utf8").trim().split("\\n");\n' },
 ] as const

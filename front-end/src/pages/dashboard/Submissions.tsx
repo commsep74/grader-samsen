@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/PageHeader'
 import { VerdictBadge } from '@/components/VerdictBadge'
@@ -5,11 +6,23 @@ import { mockProblems, mockSubmissions } from '@/lib/mock-data'
 import { useAppStore } from '@/store/useAppStore'
 
 export default function Submissions() {
-  const { user, studentSubmissions } = useAppStore()
+  const { user, studentSubmissions, submissions, problems, fetchSubmissions, fetchProblems } = useAppStore()
   const userId = user?.id ?? ''
   const isStudent = user?.role === 'student'
 
-  const submissionsList = isStudent ? (studentSubmissions[userId] ?? []) : mockSubmissions
+  useEffect(() => {
+    fetchSubmissions()
+    fetchProblems()
+  }, [fetchSubmissions, fetchProblems])
+
+  // Get submissions list
+  let submissionsList = submissions.length > 0 ? submissions : []
+  if (submissionsList.length === 0) {
+    submissionsList = isStudent ? (studentSubmissions[userId] ?? []) : mockSubmissions
+  }
+
+  // Combine database problems and mock problems for title resolution
+  const allProblems = [...problems, ...mockProblems]
 
   return (
     <div className="space-y-8">
@@ -40,7 +53,7 @@ export default function Submissions() {
                 </tr>
               ) : (
                 submissionsList.map((s) => {
-                  const problem = mockProblems.find((p) => p.id === s.problemId)
+                  const problem = allProblems.find((p) => p.id === s.problemId)
                   return (
                     <tr key={s.id} className="transition-colors hover:bg-muted/50">
                       <td className="px-6 py-4 text-muted-foreground">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
-import { Copy, Plus, Trash2, LogOut, Loader2, ChevronLeft, Shield, Medal, Trophy, Crown, Users } from 'lucide-react'
+import { Copy, Plus, Trash2, LogOut, Loader2, ChevronLeft, Shield, Medal, Trophy, Crown } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
@@ -414,7 +414,7 @@ export default function Classes() {
                               </div>
                               {a.problemIds && a.problemIds.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-1">
-                                  {a.problemIds.map((pid) => {
+                                  {a.problemIds.map((pid: string) => {
                                     const pInfo = mockProblems.find((p) => p.id === pid)
                                     return (
                                       <span key={pid} className="rounded bg-accent px-1.5 py-0.5 text-[9px] font-semibold text-primary border border-primary/5">

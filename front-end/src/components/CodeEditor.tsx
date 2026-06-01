@@ -21,7 +21,11 @@ export default function CodeEditor({
   const setDraftCode = useAppStore((s) => s.setDraftCode)
 
   const monacoLang =
-    language === 'cpp' ? 'cpp' : language === 'python' ? 'python' : language === 'java' ? 'java' : 'javascript'
+    language === 'cpp' ? 'cpp' :
+    language === 'c' ? 'c' :
+    language === 'python' ? 'python' :
+    language === 'js' || language === 'javascript' ? 'javascript' :
+    'cpp'
 
   return (
     <div className="overflow-hidden rounded-lg border border-border shadow-sm">

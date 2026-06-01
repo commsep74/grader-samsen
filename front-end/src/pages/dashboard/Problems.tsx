@@ -1,7 +1,8 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/PageHeader'
 import { Badge } from '@/components/ui/badge'
-import { mockProblems } from '@/lib/mock-data'
+import { useAppStore } from '@/store/useAppStore'
 
 const difficultyStyle = {
   easy: 'success',
@@ -10,6 +11,16 @@ const difficultyStyle = {
 } as const
 
 export default function Problems() {
+  const fetchProblems = useAppStore((s) => s.fetchProblems)
+  const dbProblems = useAppStore((s) => s.problems)
+
+  useEffect(() => {
+    fetchProblems()
+  }, [fetchProblems])
+
+  // Show database-created problems directly
+  const displayProblems = dbProblems
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -30,7 +41,7 @@ export default function Problems() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {mockProblems.map((p, i) => (
+              {displayProblems.map((p, i) => (
                 <tr key={p.id} className="transition-colors hover:bg-muted/50">
                   <td className="px-6 py-4 font-mono tabular-nums text-muted-foreground">{i + 1}</td>
                   <td className="px-6 py-4">

@@ -11,20 +11,24 @@ interface RegisterForm {
   username: string
   password: string
   role: 'student' | 'teacher'
+  teacherCode?: string
 }
 
 export default function Register() {
   const navigate = useNavigate()
   const registerWithCredentials = useAppStore((s) => s.registerWithCredentials)
-  const { register, handleSubmit, formState: { isSubmitting } } = useForm<RegisterForm>({
+  const { register, handleSubmit, watch, formState: { isSubmitting } } = useForm<RegisterForm>({
     defaultValues: {
-      role: 'student'
+      role: 'student',
+      teacherCode: '',
     }
   })
 
+  const selectedRole = watch('role')
+
   const onSubmit = async (data: RegisterForm) => {
     try {
-      const user = await registerWithCredentials(data.username, data.password, data.role)
+      const user = await registerWithCredentials(data.username, data.password, data.role, data.teacherCode)
       toast.success('Account created!')
       navigate(user.role === 'teacher' || user.role === 'admin' ? '/admin' : '/app')
     } catch (error) {
@@ -83,6 +87,20 @@ export default function Register() {
                 <option value="teacher">Teacher</option>
               </select>
             </div>
+            {selectedRole === 'teacher' && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <label htmlFor="teacherCode" className="text-sm font-medium text-foreground">
+                  Teacher Invitation Code
+                </label>
+                <Input
+                  id="teacherCode"
+                  type="password"
+                  placeholder="Enter secret code"
+                  {...register('teacherCode', { required: selectedRole === 'teacher' })}
+                />
+                <p className="text-xs text-muted-foreground">Ask system admin for the teacher code.</p>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? 'Creating account…' : 'Create account'}
             </Button>

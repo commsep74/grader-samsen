@@ -1,4 +1,4 @@
-import type { User, Classroom } from '@/types'
+import type { User, Classroom, Problem, Submission, Assignment } from '@/types'
 
 const API_URL = import.meta.env.VITE_API_URL ?? ''
 
@@ -62,10 +62,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data
 }
 
-export async function register(username: string, password: string, role?: string): Promise<AuthResponse> {
+export async function register(
+  username: string,
+  password: string,
+  role?: string,
+  teacherCode?: string,
+): Promise<AuthResponse> {
   const data = await request<AuthResponse>('/api/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ username, password, role }),
+    body: JSON.stringify({ username, password, role, teacherCode }),
   })
 
   if (data.session) {
@@ -190,4 +195,104 @@ export interface XPLeaderboardEntry {
 export async function fetchLeaderboard(): Promise<XPLeaderboardEntry[]> {
   const data = await request<{ leaderboard: XPLeaderboardEntry[] }>('/api/auth/leaderboard')
   return data.leaderboard
+}
+
+export async function fetchProblems(): Promise<Problem[]> {
+  const data = await request<{ problems: Problem[] }>('/api/problems')
+  return data.problems
+}
+
+export async function fetchProblemDetail(id: string): Promise<Problem> {
+  const data = await request<{ problem: Problem }>(`/api/problems/${id}`)
+  return data.problem
+}
+
+export async function createProblem(problemData: Omit<Problem, 'id' | 'solvedCount'>): Promise<Problem> {
+  const data = await request<{ problem: Problem }>('/api/problems', {
+    method: 'POST',
+    body: JSON.stringify(problemData),
+  })
+  return data.problem
+}
+
+export async function submitCodeSolution(problemId: string, language: string, code: string): Promise<Submission> {
+  const data = await request<{ submission: Submission }>(`/api/problems/${problemId}/submit`, {
+    method: 'POST',
+    body: JSON.stringify({ language, code }),
+  })
+  return data.submission
+}
+
+export async function fetchSubmissions(): Promise<Submission[]> {
+  const data = await request<{ submissions: Submission[] }>('/api/problems/submissions/all')
+  return data.submissions
+}
+
+export async function deleteProblem(id: string): Promise<void> {
+  await request<{ success: boolean }>(`/api/problems/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export interface EditProblemData extends Omit<Problem, 'id' | 'solvedCount' | 'createdBy'> {
+  testcases?: Array<{ input: string; output: string; isPublic: boolean }>
+}
+
+export async function updateProblem(id: string, problemData: EditProblemData): Promise<Problem> {
+  const data = await request<{ problem: Problem }>(`/api/problems/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(problemData),
+  })
+  return data.problem
+}
+
+export async function fetchProblemTestcases(id: string): Promise<Array<{ input: string; output: string; isPublic: boolean }>> {
+  const data = await request<{ testcases: Array<{ input: string; output: string; isPublic: boolean }> }>(`/api/problems/${id}/testcases`)
+  return data.testcases
+}
+
+export async function updateProfile(name?: string, username?: string): Promise<User> {
+  const data = await request<{ user: User }>('/api/auth/profile', {
+    method: 'PUT',
+    body: JSON.stringify({ name, username }),
+  })
+  return data.user
+}
+
+export async function updatePassword(password: string): Promise<{ success: boolean; message: string }> {
+  const data = await request<{ success: boolean; message: string }>('/api/auth/password', {
+    method: 'PUT',
+    body: JSON.stringify({ password }),
+  })
+  return data
+}
+
+export async function fetchClassroomAssignments(classId: string): Promise<Assignment[]> {
+  const data = await request<{ assignments: Assignment[] }>(`/api/assignments/classroom/${classId}`)
+  return data.assignments
+}
+
+export async function createAssignment(
+  classroomId: string,
+  title: string,
+  description: string,
+  dueAt: string,
+  problemIds: string[],
+): Promise<Assignment> {
+  const data = await request<{ assignment: Assignment }>('/api/assignments', {
+    method: 'POST',
+    body: JSON.stringify({ classroomId, title, description, dueAt, problemIds }),
+  })
+  return data.assignment
+}
+
+export async function deleteAssignment(id: string): Promise<void> {
+  await request<{ success: boolean }>(`/api/assignments/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function fetchClassroomSubmissions(classId: string): Promise<Submission[]> {
+  const data = await request<{ submissions: Submission[] }>(`/api/classrooms/${classId}/submissions`)
+  return data.submissions
 }

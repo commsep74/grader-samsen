@@ -36,6 +36,7 @@ export interface Problem {
   tags?: string[]
   solvedCount?: number
   classId?: string
+  pdfUrl?: string
 }
 
 export interface Testcase {

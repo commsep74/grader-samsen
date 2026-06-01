@@ -112,29 +112,52 @@ classroomsRouter.get('/', async (req, res) => {
       classes = classroomRows || []
     }
 
-    // Map and attach student count and teacher details
-    const mappedClasses = await Promise.all(
-      classes.map(async (c) => {
-        const studentCount = await getStudentCount(c.id)
+    // Batch fetch teacher profiles to avoid N+1 queries
+    const teacherIds = [...new Set(classes.map((c) => c.teacher_id))]
+    let teacherMap = new Map<string, { name: string; username: string }>()
+    if (teacherIds.length > 0) {
+      const { data: teacherProfiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, name, username')
+        .in('id', teacherIds)
+      
+      if (teacherProfiles) {
+        teacherProfiles.forEach((tp) => {
+          teacherMap.set(tp.id, tp)
+        })
+      }
+    }
 
-        // Fetch teacher profile to get the teacher's name
-        const { data: teacherProfile } = await supabaseAdmin
-          .from('profiles')
-          .select('name, username')
-          .eq('id', c.teacher_id)
-          .maybeSingle()
+    // Batch fetch student membership counts to avoid N+1 queries
+    const classIds = classes.map((c) => c.id)
+    const countMap = new Map<string, number>()
+    if (classIds.length > 0) {
+      const { data: memberRows } = await supabaseAdmin
+        .from('classroom_members')
+        .select('classroom_id')
+        .in('classroom_id', classIds)
 
-        return {
-          id: c.id,
-          name: c.name,
-          code: c.code,
-          description: c.description ?? '',
-          teacherId: c.teacher_id,
-          teacherName: teacherProfile?.name || teacherProfile?.username || 'Unknown',
-          studentCount,
-        }
-      })
-    )
+      if (memberRows) {
+        memberRows.forEach((row) => {
+          countMap.set(row.classroom_id, (countMap.get(row.classroom_id) || 0) + 1)
+        })
+      }
+    }
+
+    const mappedClasses = classes.map((c) => {
+      const teacherProfile = teacherMap.get(c.teacher_id)
+      const studentCount = countMap.get(c.id) ?? 0
+
+      return {
+        id: c.id,
+        name: c.name,
+        code: c.code,
+        description: c.description ?? '',
+        teacherId: c.teacher_id,
+        teacherName: teacherProfile?.name || teacherProfile?.username || 'Unknown',
+        studentCount,
+      }
+    })
 
     return res.json({ classrooms: mappedClasses })
   } catch (err: any) {
@@ -358,8 +381,15 @@ classroomsRouter.get('/:id/members', async (req, res) => {
       return res.status(404).json({ error: 'Classroom not found.' })
     }
 
-    // Auth check: User must be either the class teacher or an enrolled student
-    const isOwner = classroom.teacher_id === userData.user.id
+    // Auth check: User must be either the class teacher, an enrolled student, or an admin
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', userData.user.id)
+      .single()
+
+    const isAdmin = profile?.role === 'admin'
+    const isOwner = classroom.teacher_id === userData.user.id || isAdmin
     let isEnrolled = false
 
     if (!isOwner) {
@@ -437,8 +467,15 @@ classroomsRouter.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Classroom not found.' })
     }
 
-    if (classroom.teacher_id !== userData.user.id) {
-      return res.status(403).json({ error: 'Only the creator teacher can delete this classroom.' })
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', userData.user.id)
+      .single()
+
+    const isAdmin = profile?.role === 'admin'
+    if (classroom.teacher_id !== userData.user.id && !isAdmin) {
+      return res.status(403).json({ error: 'Only the creator teacher or an administrator can delete this classroom.' })
     }
 
     const { error: deleteError } = await supabaseAdmin
@@ -497,6 +534,82 @@ classroomsRouter.delete('/:id/leave', async (req, res) => {
     }
 
     return res.json({ success: true })
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message ?? 'Server error' })
+  }
+})
+
+// 7. GET /:id/submissions - List all submissions from students in this classroom (Teachers/Admins only)
+classroomsRouter.get('/:id/submissions', async (req, res) => {
+  const authHeader = req.headers.authorization
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  const classId = req.params.id
+
+  if (!token) {
+    return res.status(401).json({ error: 'Not authenticated.' })
+  }
+
+  const client = createSupabaseClient(token)
+  const { data: userData, error: userError } = await client.auth.getUser(token)
+
+  if (userError || !userData.user) {
+    return res.status(401).json({ error: 'Invalid or expired session.' })
+  }
+
+  try {
+    const { data: classroom } = await supabaseAdmin
+      .from('classrooms')
+      .select('teacher_id')
+      .eq('id', classId)
+      .single()
+
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', userData.user.id)
+      .single()
+
+    const isTeacher = classroom?.teacher_id === userData.user.id
+    const isAdmin = profile?.role === 'admin'
+
+    if (!isTeacher && !isAdmin) {
+      return res.status(403).json({ error: 'Access denied. Teachers and Admins only.' })
+    }
+
+    const { data: members } = await supabaseAdmin
+      .from('classroom_members')
+      .select('student_id')
+      .eq('classroom_id', classId)
+
+    const studentIds = members?.map(m => m.student_id) || []
+    if (studentIds.length === 0) {
+      return res.json({ submissions: [] })
+    }
+
+    const { data: submissions, error } = await supabaseAdmin
+      .from('submissions')
+      .select('*')
+      .in('user_id', studentIds)
+      .order('submitted_at', { ascending: false })
+
+    if (error) {
+      return res.status(500).json({ error: error.message })
+    }
+
+    const mapped = (submissions || []).map(s => ({
+      id: s.id,
+      userId: s.user_id,
+      problemId: s.problem_id,
+      language: s.language,
+      code: s.code,
+      verdict: s.verdict,
+      score: s.score,
+      runtime: s.runtime,
+      memory: s.memory,
+      submittedAt: s.submitted_at
+    }))
+
+    return res.json({ submissions: mapped })
   } catch (err: any) {
     return res.status(500).json({ error: err.message ?? 'Server error' })
   }

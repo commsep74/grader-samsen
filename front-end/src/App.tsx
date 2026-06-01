@@ -15,7 +15,6 @@ import Settings from '@/pages/dashboard/Settings'
 import AdminDashboard from '@/pages/admin/AdminDashboard'
 import AdminClassrooms from '@/pages/admin/Classrooms'
 import ProblemManager from '@/pages/admin/ProblemManager'
-import TestcaseManager from '@/pages/admin/TestcaseManager'
 import UserManager from '@/pages/admin/UserManager'
 import Analytics from '@/pages/admin/Analytics'
 import { useAppStore } from '@/store/useAppStore'
@@ -51,7 +50,6 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="classrooms" element={<AdminClassrooms />} />
           <Route path="problems" element={<ProblemManager />} />
-          <Route path="testcases" element={<TestcaseManager />} />
           <Route path="users" element={<UserManager />} />
           <Route path="analytics" element={<Analytics />} />
         </Route>

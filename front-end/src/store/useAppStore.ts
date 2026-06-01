@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { User, Submission } from '@/types'
+import type { User, Submission, Problem } from '@/types'
 import * as authApi from '@/lib/api'
 
 interface AppState {
@@ -8,28 +8,35 @@ interface AppState {
   isDark: boolean
   draftCode: Record<string, string>
   authReady: boolean
+  problems: Problem[]
+  submissions: Submission[]
   studentJoinedClassrooms: Record<string, string[]>
   studentSubmissions: Record<string, Submission[]>
   setUser: (user: User | null) => void
   toggleDark: () => void
   setDraftCode: (problemId: string, code: string) => void
   loginWithCredentials: (username: string, password: string) => Promise<User>
-  registerWithCredentials: (username: string, password: string, role?: string) => Promise<User>
+  registerWithCredentials: (username: string, password: string, role?: string, teacherCode?: string) => Promise<User>
   restoreSession: () => Promise<void>
   logout: () => Promise<void>
   deleteAccount: () => Promise<void>
   joinClassroom: (userId: string, classId: string) => void
   addSubmission: (userId: string, submission: Submission) => void
   resetStudentData: (userId: string) => void
+  fetchProblems: () => Promise<void>
+  fetchSubmissions: () => Promise<void>
+  submitSolution: (problemId: string, language: string, code: string) => Promise<Submission>
 }
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isDark: false,
       draftCode: {},
       authReady: false,
+      problems: [],
+      submissions: [],
       studentJoinedClassrooms: {},
       studentSubmissions: {},
       setUser: (user) => set({ user }),
@@ -48,8 +55,8 @@ export const useAppStore = create<AppState>()(
         set({ user })
         return user
       },
-      registerWithCredentials: async (username, password, role) => {
-        const { user } = await authApi.register(username, password, role)
+      registerWithCredentials: async (username, password, role, teacherCode) => {
+        const { user } = await authApi.register(username, password, role, teacherCode)
         set({ user })
         return user
       },
@@ -97,6 +104,33 @@ export const useAppStore = create<AppState>()(
             [userId]: [],
           },
         })),
+      fetchProblems: async () => {
+        try {
+          const problems = await authApi.fetchProblems()
+          set({ problems })
+        } catch (err) {
+          console.error('Failed to fetch problems', err)
+        }
+      },
+      fetchSubmissions: async () => {
+        try {
+          const submissions = await authApi.fetchSubmissions()
+          set({ submissions })
+        } catch (err) {
+          console.error('Failed to fetch submissions', err)
+        }
+      },
+      submitSolution: async (problemId, language, code) => {
+        const submission = await authApi.submitCodeSolution(problemId, language, code)
+        
+        // Also add locally
+        const user = get().user
+        if (user) {
+          get().addSubmission(user.id, submission)
+        }
+        
+        return submission
+      },
     }),
     {
       name: 'grader-samsen',
@@ -104,6 +138,8 @@ export const useAppStore = create<AppState>()(
         user: s.user,
         isDark: s.isDark,
         draftCode: s.draftCode,
+        problems: s.problems,
+        submissions: s.submissions,
         studentJoinedClassrooms: s.studentJoinedClassrooms,
         studentSubmissions: s.studentSubmissions,
       }),
