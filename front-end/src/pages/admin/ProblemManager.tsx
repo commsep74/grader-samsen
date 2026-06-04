@@ -76,7 +76,12 @@ export default function ProblemManager() {
     toast.loading('Loading testcases...')
     try {
       const tc = await authApi.fetchProblemTestcases(p.id)
-      setTestcases(tc.length > 0 ? tc : [{ input: '', output: '', isPublic: true }])
+      const sanitized = tc.map((t: any) => ({
+        ...t,
+        input: (t.input || '').replace(/\\n/g, '\n'),
+        output: (t.output || '').replace(/\\n/g, '\n')
+      }))
+      setTestcases(sanitized.length > 0 ? sanitized : [{ input: '', output: '', isPublic: true }])
       setIsModalOpen(true)
     } catch {
       toast.error('Failed to load problem testcases.')
@@ -159,8 +164,8 @@ export default function ProblemManager() {
         tags,
         pdfUrl: pdfUrl || undefined,
         testcases: testcases.map((tc) => ({
-          input: tc.input,
-          output: tc.output,
+          input: (tc.input || '').replace(/\\n/g, '\n'),
+          output: (tc.output || '').replace(/\\n/g, '\n'),
           isPublic: tc.isPublic
         }))
       }
@@ -404,7 +409,7 @@ export default function ProblemManager() {
                         <div className="space-y-1.5">
                           <label className="text-xs font-medium text-muted-foreground">Input Data</label>
                           <textarea
-                            rows={2}
+                            rows={4}
                             value={tc.input}
                             onChange={(e) => updateTestcase(idx, 'input', e.target.value)}
                             placeholder="e.g. 5 10"
@@ -414,7 +419,7 @@ export default function ProblemManager() {
                         <div className="space-y-1.5">
                           <label className="text-xs font-medium text-muted-foreground">Expected Output</label>
                           <textarea
-                            rows={2}
+                            rows={4}
                             value={tc.output}
                             onChange={(e) => updateTestcase(idx, 'output', e.target.value)}
                             placeholder="e.g. 15"

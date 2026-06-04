@@ -159,11 +159,11 @@ export default function ProblemDetail() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Input</p>
-                        <pre className="p-2.5 rounded bg-muted/65 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed border border-border/40">{tc.input || '(empty)'}</pre>
+                        <pre className="p-2.5 rounded bg-muted/65 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed border border-border/40">{(tc.input || '').replace(/\\n/g, '\n') || '(empty)'}</pre>
                       </div>
                       <div>
                         <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Expected Output</p>
-                        <pre className="p-2.5 rounded bg-muted/65 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed border border-border/40">{tc.output || '(empty)'}</pre>
+                        <pre className="p-2.5 rounded bg-muted/65 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed border border-border/40">{(tc.output || '').replace(/\\n/g, '\n') || '(empty)'}</pre>
                       </div>
                     </div>
                   </div>

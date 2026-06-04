@@ -75,6 +75,9 @@ export async function runCodeInSandbox(
   const results = await Promise.all(
     testcases.map(async (tc) => {
       try {
+        const sanitizedInput = tc.input ? tc.input.replace(/\\n/g, '\n') : ''
+        const sanitizedOutput = tc.output ? tc.output.replace(/\\n/g, '\n') : ''
+
         const response = await fetch('https://api.onlinecompiler.io/api/run-code-sync/', {
           method: 'POST',
           headers: {
@@ -84,7 +87,7 @@ export async function runCodeInSandbox(
           body: JSON.stringify({
             compiler,
             code,
-            input: tc.input,
+            input: sanitizedInput,
           }),
         })
 
@@ -115,7 +118,7 @@ export async function runCodeInSandbox(
           status = 'Runtime Error'
         } else {
           // Check if output matches expected
-          const outputMatches = compareOutputs(data.output, tc.output)
+          const outputMatches = compareOutputs(data.output, sanitizedOutput)
           if (!outputMatches) {
             status = 'Wrong Answer'
           }

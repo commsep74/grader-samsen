@@ -150,8 +150,8 @@ problemsRouter.post('/', async (req, res) => {
     if (testcases && Array.isArray(testcases) && testcases.length > 0) {
       const tcInserts = testcases.map(tc => ({
         problem_id: problem.id,
-        input: tc.input || '',
-        output: tc.output || '',
+        input: (tc.input || '').replace(/\\n/g, '\n'),
+        output: (tc.output || '').replace(/\\n/g, '\n'),
         is_public: tc.isPublic !== false
       }))
       await supabaseAdmin.from('testcases').insert(tcInserts)
@@ -478,8 +478,8 @@ problemsRouter.put('/:id', async (req, res) => {
       if (testcases.length > 0) {
         const tcInserts = testcases.map(tc => ({
           problem_id: id,
-          input: tc.input || '',
-          output: tc.output || '',
+          input: (tc.input || '').replace(/\\n/g, '\n'),
+          output: (tc.output || '').replace(/\\n/g, '\n'),
           is_public: tc.isPublic !== false
         }))
         await supabaseAdmin.from('testcases').insert(tcInserts)
